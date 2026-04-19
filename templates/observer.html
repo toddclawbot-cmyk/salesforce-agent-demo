@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genie — Observer Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-2: #1a1a1a;
+            --bg-3: #242424;
+            --gold: #c9a84c;
+            --gold-dim: #a68938;
+            --text: #f5f5f5;
+            --text-2: #a0a0a0;
+            --text-3: #666666;
+            --green: #4a9c6d;
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
+            --orange: #c97a4a;
+            --red: #c45c5c;
+            --border: rgba(255,255,255,0.06);
+            --border-gold: rgba(201,168,76,0.3);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Nav */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 32px;
+            background: rgba(10,10,10,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--gold);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--bg);
+        }
+
+        .nav-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .nav-sep { color: var(--text-3); font-size: 14px; }
+
+        .nav-subtitle {
+            font-size: 12px;
+            color: var(--text-3);
+            font-weight: 400;
+        }
+
+        .nav-badge {
+            background: rgba(201,168,76,0.1);
+            border: 1px solid var(--border-gold);
+            color: var(--gold);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .nav-live {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--green);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: livePulse 2s infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: calc(100vh - 61px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-left {
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-right {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-section {
+            padding: 28px 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-section:last-child { border-bottom: none; flex: 1; }
+
+        .section-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 16px;
+        }
+
+        /* Header bar */
+        .panel-header {
+            padding: 20px 32px;
+            background: var(--bg-2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-header h2 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .panel-header p {
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        .panel-header.good h2 { color: var(--green); }
+        .panel-header.bad h2 { color: var(--red); }
+
+        /* Graph visualization */
+        .graph-container {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .graph-svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .graph-node {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .graph-node rect {
+            transition: all 0.2s;
+        }
+
+        .graph-node.active rect {
+            filter: drop-shadow(0 0 12px currentColor);
+        }
+
+        .graph-node.active text {
+            font-weight: 700;
+        }
+
+        /* Node labels */
+        .node-entry text { fill: var(--text-3); font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+        .node-model text { fill: var(--purple); font-size: 12px; font-weight: 600; }
+        .node-tools text { fill: var(--cyan); font-size: 12px; font-weight: 600; }
+        .node-end text { fill: var(--green); font-size: 12px; font-weight: 600; }
+
+        /* Pulse ring for active node */
+        .pulse-ring {
+            animation: ringPulse 1.5s ease-out infinite;
+        }
+
+        @keyframes ringPulse {
+            0% { opacity: 0.8; r: 28; }
+            100% { opacity: 0; r: 44; }
+        }
+
+        /* Event log */
+        .event-log {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .event {
+            background: var(--bg-3);
+            border-radius: 6px;
+            padding: 14px 16px;
+            font-size: 13px;
+            animation: eventIn 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        @keyframes eventIn {
+            from { opacity: 0; transform: translateX(-8px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .event.request { border-left-color: var(--purple); }
+        .event.intent { border-left-color: var(--cyan); }
+        .event.tool { border-left-color: var(--gold); }
+        .event.response { border-left-color: var(--green); }
+        .event.reasoning { border-left-color: var(--orange); }
+
+        .event-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .event-type {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .event.request .event-type { color: var(--purple); }
+        .event.intent .event-type { color: var(--cyan); }
+        .event.tool .event-type { color: var(--gold); }
+        .event.response .event-type { color: var(--green); }
+        .event.reasoning .event-type { color: var(--orange); }
+
+        .event-time {
+            font-size: 10px;
+            color: var(--text-3);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .event-body {
+            color: var(--text-2);
+            line-height: 1.5;
+            font-size: 12px;
+        }
+
+        .event-body code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: var(--bg-2);
+            padding: 1px 5px;
+            border-radius: 3px;
+            color: var(--gold);
+        }
+
+        .event-body .tool-name { color: var(--cyan); }
+        .event-body .intent { color: var(--purple); }
+        .event-body .result { color: var(--green); }
+
+        /* State inspector */
+        .state-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .state-card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .state-card-title {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 8px;
+        }
+
+        .state-card-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+
+        .state-card-value.active { color: var(--gold); }
+
+        /* Source code viewer */
+        .code-block {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            padding: 10px 16px;
+            background: var(--bg-3);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .code-filename {
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-2);
+        }
+
+        .code-lang {
+            font-size: 10px;
+            color: var(--text-3);
+            background: var(--bg-2);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .code-body {
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            line-height: 1.8;
+            color: var(--text-2);
+        }
+
+        .code-body .keyword { color: var(--purple); }
+        .code-body .function { color: var(--cyan); }
+        .code-body .string { color: var(--green); }
+        .code-body .comment { color: var(--text-3); font-style: italic; }
+        .code-body .number { color: var(--orange); }
+        .code-body .decorator { color: var(--gold); }
+
+        /* Live input mirror */
+        .input-mirror {
+            background: var(--bg-2);
+            border: 1px solid var(--border-gold);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .input-mirror-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        /* SSE connection status */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-3);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .conn-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .conn-dot.connected { background: var(--green); }
+        .conn-dot.disconnected { background: var(--red); }
+        .conn-dot.pending { background: var(--orange); animation: blink 1s infinite; }
+
+        @keyframes blink { 50% { opacity: 0.3; } }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 48px 32px;
+            color: var(--text-3);
+        }
+
+        .empty-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-2);
+            margin-bottom: 6px;
+        }
+
+        .empty-desc {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* URL bar */
+        .url-bar {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .url-bar-label {
+            font-size: 10px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        .url-bar-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-2);
+        }
+
+        .url-bar-value span { color: var(--gold); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 2px; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .layout { grid-template-columns: 1fr; height: auto; }
+            .panel-left { border-right: none; border-bottom: 1px solid var(--border); min-height: 50vh; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+    <div class="nav-left">
+        <div class="nav-logo">
+            <div class="nav-logo-icon">✦</div>
+            <div class="nav-title">Genie</div>
+        </div>
+        <span class="nav-sep">·</span>
+        <span class="nav-subtitle">Observer Mode</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px;">
+        <div class="connection-status" id="connStatus">
+            <div class="conn-dot disconnected" id="connDot"></div>
+            <span id="connLabel">Disconnected</span>
+        </div>
+        <a href="/" class="nav-badge">← Frontend</a>
+    </div>
+</nav>
+
+<div class="layout">
+
+    <!-- LEFT PANEL: Frontend View -->
+    <div class="panel-left">
+        <div class="panel-header">
+            <h2>🖥️ Frontend — User View</h2>
+            <p>What the end user (or hiring manager) sees</p>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-label">Live Chat Preview</div>
+
+            <div class="input-mirror" id="inputMirror" style="display:none;">
+                <div class="input-mirror-label">Last message sent</div>
+                <span id="inputText"></span>
+            </div>
+
+            <div class="url-bar">
+                <div class="url-bar-label">URL</div>
+                <div class="url-bar-value"><span>http://localhost:5051</span>/</div>
+            </div>
+
+            <div class="state-grid">
+                <div class="state-card">
+                    <div class="state-card-title">Active Tab</div>
+                    <div class="state-card-value" id="activeTab">—</div>
+                </div>
+                <div class="state-card">
+                    <div class="state-card-title">Session</div>
+                    <div class="state-card-value">demo-user</div>
+                </div>
+                <div class="state-card">
+                    <div class="state-card-title">Agent Mode</div>
+                    <div class="state-card-value">Demo (no API key)</div>
+                </div>
+                <div class="state-card">
+                    <div class="state-card-title">Memory</div>
+                    <div class="state-card-value">5 vault notes indexed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-label">What Salman Sees</div>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.7;">
+                <p style="margin-bottom:12px;">
+                    The frontend is the <strong style="color:var(--text)">polished product demo</strong> —
+                    a beautiful dark UI where you interact with Genie through natural conversation.
+                    Salman sees a working AI agent that can search a vault, query Salesforce, and create tasks.
+                </p>
+                <p>
+                    He <em style="color:var(--gold)">doesn't see</em> the reasoning loop underneath. He just sees
+                    an agent that's knowledgeable, responsive, and useful — the same kind of agent every employee
+                    will bring to their next job.
+                </p>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-label">Frontend Stack</div>
+            <div class="state-grid">
+                <div class="state-card">
+                    <div class="state-card-title">UI Framework</div>
+                    <div class="state-card-value">Vanilla HTML/CSS/JS</div>
+                </div>
+                <div class="state-card">
+                    <div class="state-card-title">Design System</div>
+                    <div class="state-card-value">Vantis-inspired dark + gold</div>
+                </div>
+                <div class="state-card">
+                    <div class="state-card-title">Chat API</div>
+                    <div class="state-card-value">POST /api/chat</div>
+                </div>
+                <div class="state-card">
+                    <div class="state-card-title">Response Format</div>
+                    <div class="state-card-value">JSON + markdown</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-label">Switching Views for Salman</div>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.7;">
+                <p style="margin-bottom:12px;">
+                    <strong style="color:var(--text)">Slide 1:</strong> Show <code>/</code> — the polished demo. Let Salman interact.
+                    Chat with Genie about Cases, the vault, MCP. Get him excited.
+                </p>
+                <p style="margin-bottom:12px;">
+                    <strong style="color:var(--text)">Slide 2:</strong> Say <em>"Let me show you how it works under the hood."</em>
+                    Switch to <code>/observer</code>. Show the LangGraph reasoning loop live.
+                </p>
+                <p>
+                    <strong style="color:var(--text)">Slide 3:</strong> Open <code>agent.py</code> in an editor.
+                    Walk through the routing logic. Show him it's real code, not a black box.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL: Backend View -->
+    <div class="panel-right">
+        <div class="panel-header">
+            <h2>⚙️ Backend — LangGraph Engine</h2>
+            <p>What actually happens when a message comes in</p>
+        </div>
+
+        <!-- Graph -->
+        <div class="panel-section">
+            <div class="section-label">LangGraph State Machine</div>
+            <div class="graph-container">
+                <svg class="graph-svg" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Entry -->
+                    <g class="graph-node" id="node-entry">
+                        <circle cx="50" cy="100" r="22" fill="var(--bg-3)" stroke="var(--text-3)" stroke-width="1.5"/>
+                        <text x="50" y="104" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="var(--text-3)">START</text>
+                        <line x1="72" y1="100" x2="95" y2="100" stroke="var(--text-3)" stroke-width="1.5" stroke-dasharray="4,2"/>
+                        <polygon points="95,95 95,105 105,100" fill="var(--text-3)"/>
+                    </g>
+
+                    <!-- Model node -->
+                    <g class="graph-node" id="node-model">
+                        <rect x="105" y="70" width="100" height="60" rx="8" fill="var(--bg-3)" stroke="var(--purple)" stroke-width="1.5"/>
+                        <text x="155" y="95" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="var(--purple)">model()</text>
+                        <text x="155" y="110" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="var(--text-3)">reasoning</text>
+                        <circle class="pulse-ring" id="model-pulse" cx="155" cy="100" r="0" fill="none" stroke="var(--purple)" stroke-width="2" style="display:none;"/>
+                        <line x1="205" y1="100" x2="235" y2="100" stroke="var(--text-3)" stroke-width="1.5" stroke-dasharray="4,2"/>
+                        <polygon points="235,95 235,105 245,100" fill="var(--text-3)"/>
+                    </g>
+
+                    <!-- Decision diamond -->
+                    <g class="graph-node" id="node-decision">
+                        <polygon points="275,75 315,100 275,125 235,100" fill="var(--bg-3)" stroke="var(--cyan)" stroke-width="1.5"/>
+                        <text x="275" y="98" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="var(--cyan)">tools?</text>
+                        <text x="275" y="109" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--text-3)">yes/no</text>
+                        <line x1="315" y1="100" x2="345" y2="100" stroke="var(--cyan)" stroke-width="1.5"/>
+                        <text x="328" y="92" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--cyan)">yes</text>
+                        <polygon points="345,95 345,105 355,100" fill="var(--cyan)"/>
+                        <line x1="275" y1="125" x2="275" y2="155" stroke="var(--text-3)" stroke-width="1.5"/>
+                        <text x="282" y="143" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--text-3)">no</text>
+                    </g>
+
+                    <!-- Tools node -->
+                    <g class="graph-node" id="node-tools">
+                        <rect x="355" y="70" width="100" height="60" rx="8" fill="var(--bg-3)" stroke="var(--cyan)" stroke-width="1.5"/>
+                        <text x="405" y="95" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="var(--cyan)">tools()</text>
+                        <text x="405" y="110" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="var(--text-3)">execute</text>
+                        <circle class="pulse-ring" id="tools-pulse" cx="405" cy="100" r="0" fill="none" stroke="var(--cyan)" stroke-width="2" style="display:none;"/>
+                        <!-- Loop back to model -->
+                        <path d="M 355 85 Q 330 40 250 65" fill="none" stroke="var(--text-3)" stroke-width="1.5" stroke-dasharray="4,2"/>
+                        <polygon points="250,68 258,62 254,72" fill="var(--text-3)"/>
+                        <text x="310" y="52" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--text-3)">loop</text>
+                    </g>
+
+                    <!-- End node -->
+                    <g class="graph-node" id="node-end">
+                        <rect x="235" y="155" width="80" height="36" rx="8" fill="var(--bg-3)" stroke="var(--green)" stroke-width="1.5"/>
+                        <text x="275" y="177" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="var(--green)">END</text>
+                    </g>
+                </svg>
+            </div>
+            <div id="graphLegend" style="font-size:11px;color:var(--text-3);text-align:center;margin-top:8px;">
+                Waiting for a message...
+            </div>
+        </div>
+
+        <!-- Live Event Log -->
+        <div class="panel-section" style="flex:1;">
+            <div class="section-label">Live Processing Log</div>
+            <div class="event-log" id="eventLog">
+                <div class="empty-state">
+                    <div class="empty-icon">◉</div>
+                    <div class="empty-title">No events yet</div>
+                    <div class="empty-desc">Send a message from the frontend to see<br>the LangGraph reasoning loop in action</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ── SSE Connection ──────────────────────────────────────
+    let eventSource = null;
+    let reconnectTimer = null;
+
+    function connect() {
+        const dot = document.getElementById('connDot');
+        const label = document.getElementById('connLabel');
+
+        dot.className = 'conn-dot pending';
+        label.textContent = 'Connecting...';
+
+        eventSource = new EventSource('/api/events/stream');
+
+        eventSource.onopen = () => {
+            dot.className = 'conn-dot connected';
+            label.textContent = 'Connected — listening for events';
+        };
+
+        eventSource.onmessage = (e) => {
+            try {
+                const event = JSON.parse(e.data);
+                handleEvent(event);
+            } catch (err) {
+                console.warn('Bad SSE event:', e.data);
+            }
+        };
+
+        eventSource.onerror = () => {
+            dot.className = 'conn-dot disconnected';
+            label.textContent = 'Reconnecting...';
+            eventSource.close();
+            reconnectTimer = setTimeout(connect, 3000);
+        };
+    }
+
+    // ── Event handler ──────────────────────────────────────
+    function handleEvent(event) {
+        const log = document.getElementById('eventLog');
+
+        // Remove empty state if present
+        const empty = log.querySelector('.empty-state');
+        if (empty) empty.remove();
+
+        // Show input mirror if request
+        if (event.type === 'request') {
+            const mirror = document.getElementById('inputMirror');
+            const text = document.getElementById('inputText');
+            mirror.style.display = 'block';
+            text.textContent = event.data.query;
+        }
+
+        // Animate graph nodes
+        if (event.type === 'node_active') {
+            animateNode(event.data.node);
+        }
+
+        // Add log entry
+        const entry = createEventEntry(event);
+        log.insertBefore(entry, log.firstChild);
+
+        // Keep log size manageable
+        while (log.children.length > 50) {
+            log.removeChild(log.lastChild);
+        }
+    }
+
+    function createEventEntry(event) {
+        const div = document.createElement('div');
+        div.className = `event ${event.type}`;
+
+        let typeLabel = event.type.toUpperCase();
+        let body = '';
+
+        switch (event.type) {
+            case 'request':
+                typeLabel = '📥 REQUEST';
+                body = `<strong>User query:</strong> <code>${escapeHtml(event.data.query)}</code>`;
+                break;
+            case 'intent':
+                typeLabel = '🎯 INTENT';
+                body = `<span class="intent">${event.data.intent}</span> — routing to <code>${event.data.tool || '(direct answer)'}</code>`;
+                break;
+            case 'tool':
+                typeLabel = '🔧 TOOL CALL';
+                body = `Executing <code class="tool-name">${event.data.tool}</code>`;
+                if (event.data.params) {
+                    body += `<br>Params: <code>${escapeHtml(JSON.stringify(event.data.params))}</code>`;
+                }
+                break;
+            case 'response':
+                typeLabel = '✅ RESPONSE';
+                const preview = event.data.answer.substring(0, 120).replace(/\n/g, ' ');
+                body = `<span class="result">${escapeHtml(preview)}...</span>`;
+                break;
+            case 'reasoning':
+                typeLabel = '💭 REASONING';
+                body = escapeHtml(event.data.step);
+                break;
+            case 'complete':
+                typeLabel = '🏁 COMPLETE';
+                body = `Total steps: <strong>${event.data.steps}</strong> · Tools used: <code>${event.data.tools_used.join(', ') || 'none'}</code> · Latency: <code>${event.data.latency_ms}ms</code>`;
+                break;
+            default:
+                body = escapeHtml(JSON.stringify(event.data));
+        }
+
+        const time = event.timestamp ? new Date(event.timestamp).toLocaleTimeString() : '';
+        div.innerHTML = `
+            <div class="event-header">
+                <span class="event-type">${typeLabel}</span>
+                <span class="event-time">${time}</span>
+            </div>
+            <div class="event-body">${body}</div>
+        `;
+
+        return div;
+    }
+
+    function animateNode(nodeId) {
+        const legend = document.getElementById('graphLegend');
+        const nodeMap = {
+            'model': { label: 'model() — reasoning', color: 'var(--purple)', pulse: 'model-pulse' },
+            'tools': { label: 'tools() — executing', color: 'var(--cyan)', pulse: 'tools-pulse' },
+            'end': { label: 'END — response ready', color: 'var(--green)', pulse: null },
+        };
+
+        // Reset all
+        document.querySelectorAll('.graph-node rect, .graph-node circle:not(.pulse-ring)').forEach(el => {
+            if (el.getAttribute('stroke') === 'var(--purple)' || el.getAttribute('stroke') === 'var(--cyan)') {
+                el.setAttribute('stroke', 'var(--text-3)');
+            }
+        });
+        document.querySelectorAll('.pulse-ring').forEach(el => { el.style.display = 'none'; });
+
+        const info = nodeMap[nodeId];
+        if (info) {
+            legend.innerHTML = `<strong style="color:${info.color}">◆ ${info.label}</strong> — active node`;
+            const pulse = document.getElementById(info.pulse);
+            if (pulse) {
+                pulse.style.display = 'block';
+                pulse.setAttribute('r', '28');
+                // Re-trigger animation
+                pulse.style.animation = 'none';
+                pulse.offsetHeight; // reflow
+                pulse.style.animation = '';
+            }
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Polling fallback ────────────────────────────────────
+    // If SSE fails, fall back to polling the events endpoint
+    let pollInterval = null;
+
+    async function poll() {
+        try {
+            const resp = await fetch('/api/events/recent');
+            if (resp.ok) {
+                const events = await resp.json();
+                events.forEach(e => handleEvent(e));
+            }
+        } catch (e) {}
+    }
+
+    // ── Start ───────────────────────────────────────────────
+    connect();
+
+    // Also poll as backup every 2 seconds
+    setInterval(poll, 2000);
+</script>
+
+</body>
+</html>

@@ -5,8 +5,13 @@ Flask web interface for demonstrating the agentic enterprise vision.
 
 import os
 import json
+import time
+import threading
 from datetime import datetime
-from flask import Flask, request, jsonify, render_template, Response
+from collections import deque
+from flask import Flask, request, jsonify, render_template, Response, stream_with_context
+event_queue = deque(maxlen=100)  # Last 100 events
+
 from agent import run_agent, format_reasoning_trace, AgentState, search_vault, sf_query, sf_create_task
 from tools import TOOLS, TOOL_NAMES
 
@@ -26,6 +31,11 @@ def story():
     """The Genie origin story — Maya's journey."""
     return render_template("demo-story.html")
 
+@app.route("/observer")
+def observer():
+    """Backend observer mode — live LangGraph reasoning visualization."""
+    return render_template("observer.html")
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     """Process a message through Genie."""
@@ -35,7 +45,66 @@ def chat():
     if not query:
         return jsonify({"error": "No message provided"}), 400
     
+    start = time.time()
+    
+    # Emit request event
+    def emit(etype, edata):
+        event_queue.append({"type": etype, "data": edata, "timestamp": datetime.now().isoformat()})
+    
+    emit("request", {"query": query[:100]})
+    
+    # Determine intent by keyword matching (same logic as agent.py)
+    q_lower = query.lower()
+    if "case" in q_lower:
+        intent = "sf_query_case"
+        tool = "sf_query"
+        emit("intent", {"intent": "Salesforce case search", "tool": tool})
+        emit("node_active", {"node": "model"})
+        emit("reasoning", {"step": f"Query: {query[:60]}"})
+        emit("node_active", {"node": "tools"})
+        emit("tool", {"tool": "sf_query", "params": {"soql": "SELECT Id, Subject, Status, Priority, Account.Name FROM Case WHERE Status IN ('Open', 'Working') LIMIT 5"}})
+    elif "account" in q_lower or any(n in q_lower for n in ["acme", "globex", "initech"]):
+        intent = "sf_query_account"
+        tool = "sf_query"
+        emit("intent", {"intent": "Salesforce account lookup", "tool": tool})
+        emit("node_active", {"node": "model"})
+        emit("reasoning", {"step": f"Query: {query[:60]}"})
+        emit("node_active", {"node": "tools"})
+        emit("tool", {"tool": "sf_query", "params": {"soql": "SELECT Id, Name, Industry, AnnualRevenue FROM Account LIMIT 5"}})
+    elif ("create" in q_lower or "add" in q_lower) and ("task" in q_lower or "todo" in q_lower or "follow" in q_lower):
+        intent = "sf_create_task"
+        tool = "sf_create_task"
+        emit("intent", {"intent": "Salesforce task creation", "tool": tool})
+        emit("node_active", {"node": "model"})
+        emit("node_active", {"node": "tools"})
+        emit("tool", {"tool": "sf_create_task", "params": {"subject": query[:60], "priority": "Normal"}})
+    elif any(w in q_lower for w in ["vault", "note", "project", "meeting", "research", "agentforce", "mcp"]):
+        intent = "search_vault"
+        tool = "search_vault"
+        emit("intent", {"intent": "Vault semantic search", "tool": tool})
+        emit("node_active", {"node": "model"})
+        emit("node_active", {"node": "tools"})
+        emit("tool", {"tool": "search_vault", "params": {"query": query}})
+    elif "search" in q_lower and "web" in q_lower:
+        intent = "web_search"
+        tool = "web_search"
+        emit("intent", {"intent": "Web search", "tool": tool})
+        emit("node_active", {"node": "model"})
+        emit("node_active", {"node": "tools"})
+        emit("tool", {"tool": "web_search", "params": {"query": query}})
+    else:
+        intent = "direct_answer"
+        tool = None
+        emit("intent", {"intent": "General conversation", "tool": None})
+        emit("node_active", {"node": "model"})
+    
     result = run_agent(query)
+    
+    emit("response", {"answer": result["answer"][:200]})
+    emit("node_active", {"node": "end"})
+    
+    latency_ms = int((time.time() - start) * 1000)
+    emit("complete", {"steps": len(result["reasoning_trace"]) + 1, "tools_used": result["tools_used"], "latency_ms": latency_ms})
     
     return jsonify({
         "answer": result["answer"],
@@ -149,6 +218,38 @@ def architecture():
         }
     }
     return jsonify(arch)
+
+@app.route("/api/events/stream")
+def event_stream():
+    """SSE stream of agent events for observer mode."""
+    def generate():
+        # Send initial ping
+        yield "event: ping\ndata: {}\n\n"
+        last_idx = 0
+        while True:
+            # Check for new events
+            while len(event_queue) > last_idx:
+                evt = event_queue[last_idx]
+                last_idx += 1
+                yield f"event: message\ndata: {json.dumps(evt)}\n\n"
+            # Keep connection alive with periodic comment
+            yield ": ping\n\n"
+            time.sleep(0.5)
+    
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+            'Connection': 'keep-alive',
+        }
+    )
+
+@app.route("/api/events/recent")
+def event_recent():
+    """Return recent events for polling fallback."""
+    return jsonify(list(event_queue))
 
 # -----------------------------------------------
 # TEMPLATES
