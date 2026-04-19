@@ -11,6 +11,12 @@ from datetime import datetime
 from collections import deque
 from flask import Flask, request, jsonify, render_template, Response, stream_with_context
 event_queue = deque(maxlen=100)  # Last 100 events
+_event_seq = 0
+
+def _next_seq():
+    global _event_seq
+    _event_seq += 1
+    return _event_seq
 
 from agent import run_agent, format_reasoning_trace, AgentState, search_vault, sf_query, sf_create_task
 from tools import TOOLS, TOOL_NAMES
@@ -51,7 +57,7 @@ def verox_case_selected():
     """Called when agent selects a case in the queue."""
     data = request.get_json()
     def emit(etype, edata):
-        event_queue.append({"type": etype, "data": edata, "timestamp": datetime.now().isoformat()})
+        event_queue.append({"type": etype, "data": edata, "seq": _next_seq(), "timestamp": datetime.now().isoformat()})
     emit("case_selected", {"case_id": data.get("case_id", ""), "customer": data.get("customer", ""), "subject": data.get("subject", "")})
     return jsonify({"ok": True})
 
@@ -68,7 +74,7 @@ def verox_generate():
 
     # Emit events to observer stream
     def emit(etype, edata):
-        event_queue.append({"type": etype, "data": edata, "timestamp": datetime.now().isoformat()})
+        event_queue.append({"type": etype, "data": edata, "seq": _next_seq(), "timestamp": datetime.now().isoformat()})
 
     import time
     start = time.time()
@@ -139,7 +145,7 @@ def chat():
     
     # Emit request event
     def emit(etype, edata):
-        event_queue.append({"type": etype, "data": edata, "timestamp": datetime.now().isoformat()})
+        event_queue.append({"type": etype, "data": edata, "seq": _next_seq(), "timestamp": datetime.now().isoformat()})
     
     emit("request", {"query": query[:100]})
     

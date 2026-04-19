@@ -590,9 +590,9 @@
 </div>
 
 <script>
-    // Vault toggle state (shared with portal via API)
-    let vaultEnabled = true;
-    let vaultToggleState = true;
+    // Sequence counter — all events in a batch share the same timestamp
+    let lastSeq = 0;
+    let currentSeq = 0;
 
     function toggleVault() {
         vaultEnabled = !vaultEnabled;
@@ -759,9 +759,11 @@
     }
 
     function handleEvent(evt) {
-        const eventTime = new Date(evt.timestamp || 0).getTime();
-        if (eventTime <= lastEventTime && !['case_selected', 'generating'].includes(evt.type)) return;
-        if (eventTime > lastEventTime) lastEventTime = eventTime;
+        // Use a sequence counter embedded in the event to handle same-timestamp events
+        if (evt.seq !== undefined) {
+            if (evt.seq <= lastSeq) return; // Already processed this event
+            lastSeq = evt.seq;
+        }
 
         switch (evt.type) {
             case 'case_selected':
@@ -810,7 +812,6 @@
                 break;
 
             case 'complete':
-                // Already handled
                 break;
         }
     }
