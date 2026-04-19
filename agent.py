@@ -1,5 +1,5 @@
 """
-Salesforce Developer Agent ("Sage")
+Salesforce Developer Agent ("Genie")
 A reasoning agent with vault memory and Salesforce connectivity.
 
 Supports TWO modes:
@@ -52,7 +52,7 @@ from tools import TOOLS, TOOL_NAMES, search_vault, sf_query, sf_create_task, web
 # SYSTEM PROMPT
 # -----------------------------------------------
 
-SYSTEM_PROMPT = """You are Sage — a thoughtful, methodical AI assistant for a Salesforce Developer named Alex Chen.
+SYSTEM_PROMPT = """You are Genie — a thoughtful, methodical AI assistant for a Salesforce Developer named Alex Chen.
 
 Alex works at a mid-size enterprise using Salesforce Agentforce 2.0. You have access to:
 1. **Their personal Obsidian vault** — notes, meeting summaries, technical research, project plans
@@ -147,7 +147,7 @@ def run_demo(query: str) -> dict:
     else:
         state.reasoning_steps.append("🤔 Reasoning: Direct response — no tools needed")
         answer = (
-            "I'm Sage, your Salesforce AI assistant. Here's what I can do:\n\n"
+            "I'm Genie, your Salesforce AI assistant. Here's what I can do:\n\n"
             "🔍 **Vault Search** — Ask me about your projects, meeting notes, research\n"
             "🏢 **Salesforce Queries** — Search Cases, Accounts, Opportunities\n"
             "✅ **Task Creation** — Create follow-up tasks in Salesforce\n"
@@ -219,7 +219,7 @@ def run_real(query: str) -> dict:
 # -----------------------------------------------
 
 def run_agent(query: str) -> dict:
-    """Run Sage with a user query. Dispatches to demo or real mode."""
+    """Run Genie with a user query. Dispatches to demo or real mode."""
     return run_demo(query)
 
 
@@ -229,7 +229,7 @@ def format_reasoning_trace(state: AgentState) -> str:
 
 
 if __name__ == "__main__":
-    print("🧪 Testing Sage (Demo Mode)...\n")
+    print("🧪 Testing Genie (Demo Mode)...\n")
     
     tests = [
         "Find open cases in Salesforce",

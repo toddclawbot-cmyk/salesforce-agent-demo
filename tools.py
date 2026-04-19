@@ -1,5 +1,5 @@
 """
-Salesforce Developer Agent ("Sage") — Tool Definitions
+Salesforce Developer Agent ("Genie") — Tool Definitions
 LangGraph Agent with Vault Memory + Salesforce API + Web Search
 """
 
