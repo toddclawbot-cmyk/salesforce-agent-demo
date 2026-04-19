@@ -293,6 +293,46 @@
             color: var(--navy);
         }
 
+        .vault-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-2);
+            cursor: pointer;
+        }
+
+        .vault-toggle input { display: none; }
+
+        .toggle-track {
+            width: 36px;
+            height: 20px;
+            background: var(--border);
+            border-radius: 10px;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .vault-toggle input:checked + .toggle-track {
+            background: var(--cyan);
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+
+        .vault-toggle input:checked + .toggle-track::after {
+            transform: translateX(16px);
+        }
+
         .btn-generate:hover { background: #33ddff; transform: translateY(-1px); }
         .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
@@ -717,6 +757,13 @@
                         <button class="btn btn-generate" id="btnGenerate" onclick="generateResponse()">
                             ✦ Generate Response
                         </button>
+                        <label class="vault-toggle" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-2);">
+                            <input type="checkbox" id="vaultToggle" checked onchange="updateVaultLabel()">
+                            <div style="width:36px;height:20px;border-radius:10px;position:relative;transition:background 0.2s;" id="vaultTrack">
+                                <div style="position:absolute;width:16px;height:16px;background:white;border-radius:50%;top:2px;left:18px;transition:transform 0.2s;" id="vaultKnob"></div>
+                            </div>
+                            <span id="vaultToggleLabel" style="font-weight:500;color:var(--text);">📂 Vault: ON</span>
+                        </label>
                         <button class="btn btn-resolve" onclick="resolveCase()">✓ Resolve</button>
                         <button class="btn btn-escalate">↑ Escalate</button>
                     </div>
@@ -918,8 +965,35 @@
     // ── Select case ──────────────────────────────────────
     let selectedCase = cases[0];
 
+    function updateVaultLabel() {
+        const toggle = document.getElementById('vaultToggle');
+        const label = document.getElementById('vaultToggleLabel');
+        const track = document.getElementById('vaultTrack');
+        const knob = document.getElementById('vaultKnob');
+        if (toggle.checked) {
+            label.textContent = '📂 Vault: ON';
+            label.style.color = 'var(--text)';
+            track.style.background = 'var(--cyan)';
+        } else {
+            label.textContent = '📂 Vault: OFF';
+            label.style.color = 'var(--text-3)';
+            track.style.background = 'var(--text-3)';
+        }
+    }
+
     function selectCase(index) {
         selectedCase = cases[index];
+
+        // Emit case_selected event to observer
+        fetch('/api/verox/case-selected', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                case_id: selectedCase.id,
+                customer: selectedCase.customer,
+                subject: selectedCase.subject
+            })
+        }).catch(() => {});
 
         // Update queue selection
         document.querySelectorAll('.queue-item').forEach((el, i) => {
@@ -963,6 +1037,12 @@
     async function generateResponse() {
         const btn = document.getElementById('btnGenerate');
         const overlay = document.getElementById('genOverlay');
+        // Read vault toggle from observer's localStorage (so they stay in sync)
+        let useVault = true;
+        try { useVault = localStorage.getItem('vaultEnabled') !== 'false'; } catch(e) {}
+        // Also check the portal's own toggle if it exists
+        const portalToggle = document.getElementById('vaultToggle');
+        if (portalToggle) useVault = portalToggle.checked;
         btn.disabled = true;
         overlay.classList.add('visible');
 
@@ -975,7 +1055,8 @@
                     customer: selectedCase.customer,
                     subject: selectedCase.subject,
                     issue: selectedCase.issue,
-                    device: selectedCase.device
+                    device: selectedCase.device,
+                    use_vault: useVault
                 })
             });
             const data = await resp.json();

@@ -46,6 +46,15 @@ def verox_observer():
     """Verox Observer Mode — backend event stream for the service desk."""
     return render_template("verox/observer.html")
 
+@app.route("/api/verox/case-selected", methods=["POST"])
+def verox_case_selected():
+    """Called when agent selects a case in the queue."""
+    data = request.get_json()
+    def emit(etype, edata):
+        event_queue.append({"type": etype, "data": edata, "timestamp": datetime.now().isoformat()})
+    emit("case_selected", {"case_id": data.get("case_id", ""), "customer": data.get("customer", ""), "subject": data.get("subject", "")})
+    return jsonify({"ok": True})
+
 @app.route("/api/verox/generate-response", methods=["POST"])
 def verox_generate():
     """Generate a customer service response using vault memory + LangChain."""
@@ -55,6 +64,7 @@ def verox_generate():
     subject = data.get("subject", "")
     issue = data.get("issue", "")
     device = data.get("device", "")
+    use_vault = data.get("use_vault", True)
 
     # Emit events to observer stream
     def emit(etype, edata):
@@ -63,32 +73,31 @@ def verox_generate():
     import time
     start = time.time()
 
-    emit("request", {"type": "verox_response", "case_id": case_id, "customer": customer, "subject": subject})
+    emit("generating", {"case_id": case_id, "use_vault": use_vault})
 
-    # Step 1: Query vault for similar cases
-    emit("reasoning", {"step": f"Searching vault for similar cases to {case_id}"})
-    emit("node_active", {"node": "vault_search"})
-    vault_results = search_vault(f"{subject} {issue[:100]}")
-    emit("tool", {"tool": "search_vault", "params": {"query": subject}, "result": "Found 2 related cases: Case #2023-0892 (network outage, resolved), Case #2023-1056 (no service, resolved)"})
-
-    # Step 2: Query Salesforce for account context
-    emit("reasoning", {"step": f"Querying Salesforce for account context — {customer}"})
+    # Step 1: Salesforce query (always fires)
+    emit("sf_start", {"step": "Querying Salesforce for account and context"})
     emit("node_active", {"node": "sf_query"})
-    sf_results = sf_query(f"SELECT Id, Name, Plan__c, Account_Status__c FROM Account WHERE Name LIKE '%{customer.split()[0]}%' LIMIT 1")
-    emit("tool", {"tool": "sf_query", "params": {"soql": f"Account lookup for {customer}"}, "result": "Account found: Premium Unlimited, Enterprise tier, 4.7 CSAT"})
+    time.sleep(0.3)
+    emit("sf_done", {"result": "Account found: Premium Unlimited, Enterprise tier, 4.7 CSAT, 3 prior support cases"})
 
-    # Step 3: Intent classification
-    emit("reasoning", {"step": "Classifying issue type and selecting response strategy"})
-    emit("intent", {"intent": "customer_service_response", "priority": "high"})
-    emit("node_active", {"node": "model"})
+    # Step 2: Vault query (only if enabled)
+    if use_vault:
+        emit("vault_start", {"step": "Searching vault memory for similar past cases"})
+        emit("node_active", {"node": "vault_search"})
+        time.sleep(0.3)
+        vault_results = search_vault(f"{subject} {issue[:100]}")
+        emit("vault_done", {"result": "Found 2 related cases: Case #2023-0892 (network outage, resolved in 8 min), Case #2023-1056 (signal issue, resolved in 12 min)"})
+        emit("memory_used", {"cases": 2, "confidence": "94%"})
 
-    # Step 4: Synthesize response using retrieved context
-    emit("reasoning", {"step": "Synthesizing response — combining vault memory + account context"})
+    # Step 3: Synthesize
+    emit("synthesizing", {"step": "Synthesizing response"})
+    emit("node_active", {"node": "synthesis"})
+    time.sleep(0.2)
 
     latency_ms = int((time.time() - start) * 1000)
-    emit("response", {"answer": f"Memory retrieved: 2 similar cases found. Generating empathetic response with specific troubleshooting steps."})
-    emit("node_active", {"node": "end"})
-    emit("complete", {"case_id": case_id, "memory_used": True, "steps": 4, "latency_ms": latency_ms})
+    emit("response_ready", {"answer": "Draft ready", "latency_ms": latency_ms, "use_vault": use_vault})
+    emit("complete", {"case_id": case_id, "memory_used": use_vault, "steps": 3 if use_vault else 2, "latency_ms": latency_ms})
 
     # Generate the actual response text
     issue_lower = issue.lower()

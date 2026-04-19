@@ -12,7 +12,6 @@
             --purple: #8b5cf6;
             --green: #10b981;
             --amber: #f59e0b;
-            --red: #ef4444;
             --text: #f0f4f8;
             --text-dim: rgba(240,244,248,0.5);
         }
@@ -27,15 +26,15 @@
             overflow: hidden;
         }
 
-        /* ── Top bar ── */
+        /* Top bar */
         .topbar {
-            height: 64px;
+            height: 60px;
             background: rgba(11,22,40,0.95);
-            border-bottom: 1px solid rgba(0,212,255,0.15);
+            border-bottom: 1px solid rgba(0,212,255,0.12);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 40px;
+            padding: 0 32px;
         }
 
         .topbar-left {
@@ -45,7 +44,7 @@
         }
 
         .topbar-logo {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             color: #fff;
         }
@@ -53,7 +52,7 @@
         .topbar-logo span { color: var(--cyan); }
 
         .topbar-sub {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-dim);
             padding-left: 12px;
             border-left: 1px solid rgba(255,255,255,0.1);
@@ -63,169 +62,151 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(16,185,129,0.12);
-            border: 1px solid rgba(16,185,129,0.25);
+            background: rgba(16,185,129,0.1);
+            border: 1px solid rgba(16,185,129,0.2);
             border-radius: 20px;
-            padding: 5px 12px;
+            padding: 4px 12px;
             font-size: 11px;
             font-weight: 600;
             color: var(--green);
-            letter-spacing: 0.05em;
         }
 
         .live-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--green);
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
+            background: var(--green);
             animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* ── Main view ── */
+        /* Main */
         .main {
-            height: calc(100vh - 64px);
+            height: calc(100vh - 60px);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: 32px;
         }
 
-        /* ── Brain view ── */
-        .brain-container {
+        /* Brain container */
+        .brain {
             position: relative;
-            width: 700px;
-            max-width: 100%;
+            width: 680px;
         }
 
-        /* Central agent icon */
-        .agent-center {
-            position: relative;
-            z-index: 2;
-        }
-
-        .agent-orb {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #1a3060, #0b1628);
-            border: 2px solid rgba(0,212,255,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            transition: all 0.5s ease;
-            box-shadow: 0 0 0 rgba(0,212,255,0);
-        }
-
-        .agent-orb.active {
-            border-color: var(--cyan);
-            box-shadow: 0 0 60px rgba(0,212,255,0.3), 0 0 120px rgba(0,212,255,0.1);
-        }
-
-        .agent-orb.thinking {
-            animation: thinkPulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes thinkPulse {
-            0%, 100% { box-shadow: 0 0 40px rgba(0,212,255,0.2); }
-            50% { box-shadow: 0 0 80px rgba(0,212,255,0.5), 0 0 120px rgba(139,92,246,0.2); }
-        }
-
-        .agent-icon {
-            font-size: 52px;
-        }
-
-        .agent-label {
+        /* State label */
+        .state-label {
             text-align: center;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 4px;
-        }
-
-        .agent-sublabel {
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-dim);
-        }
-
-        /* Surrounding nodes */
-        .nodes-ring {
-            position: absolute;
-            inset: -80px;
-            z-index: 1;
-        }
-
-        .brain-node {
-            position: absolute;
-            width: 160px;
-            padding: 16px 18px;
-            background: rgba(26,48,96,0.6);
-            border: 1px solid rgba(0,212,255,0.15);
-            border-radius: 14px;
-            backdrop-filter: blur(10px);
-            opacity: 0.5;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--cyan);
+            margin-bottom: 28px;
+            height: 28px;
+            letter-spacing: -0.02em;
+            opacity: 0;
+            transform: translateY(8px);
             transition: all 0.4s ease;
         }
 
-        .brain-node.active {
-            opacity: 1;
-            transform: scale(1.05);
+        .state-label.visible { opacity: 1; transform: translateY(0); }
+
+        /* Central orb */
+        .orb-wrap {
+            text-align: center;
+            margin-bottom: 8px;
         }
 
-        .brain-node.active.top-left {
+        .orb {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #1a3060, #0b1628);
+            border: 2px solid rgba(0,212,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 48px;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .orb.active {
+            border-color: var(--cyan);
+            box-shadow: 0 0 60px rgba(0,212,255,0.25), 0 0 120px rgba(0,212,255,0.1);
+        }
+
+        .orb.thinking {
+            animation: think 1.5s ease-in-out infinite;
+        }
+
+        @keyframes think {
+            0%,100% { box-shadow: 0 0 40px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 80px rgba(0,212,255,0.4), 0 0 100px rgba(139,92,246,0.15); }
+        }
+
+        .orb-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 10px;
+        }
+
+        .orb-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* Nodes — horizontal layout */
+        .nodes {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .node {
+            width: 160px;
+            padding: 18px;
+            background: rgba(26,48,96,0.5);
+            border: 1px solid rgba(0,212,255,0.12);
+            border-radius: 14px;
+            text-align: center;
+            opacity: 0.45;
+            transform: scale(0.97);
+            transition: all 0.4s ease;
+        }
+
+        .node.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .node.sf.active {
             border-color: rgba(0,212,255,0.6);
             box-shadow: 0 0 30px rgba(0,212,255,0.2);
         }
 
-        .brain-node.active.top-right {
+        .node.vault.active {
             border-color: rgba(139,92,246,0.6);
             box-shadow: 0 0 30px rgba(139,92,246,0.2);
         }
 
-        .brain-node.active.bottom {
-            border-color: rgba(16,185,129,0.6);
-            box-shadow: 0 0 30px rgba(16,185,129,0.2);
+        .node.done {
+            opacity: 0.8;
+            transform: scale(1);
         }
 
-        /* Node positions */
-        .brain-node.top-left { top: 0; left: 0; }
-        .brain-node.top-right { top: 0; right: 0; }
-        .brain-node.bottom { bottom: 0; left: 50%; transform: translateX(-50%); }
-        .brain-node.bottom.active { transform: translateX(-50%) scale(1.05); }
-
-        /* Connector lines */
-        .connectors {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
-        }
-
-        .connector-line {
-            position: absolute;
-            height: 1px;
-            background: rgba(0,212,255,0.1);
-            transform-origin: left center;
-            transition: all 0.4s ease;
-        }
-
-        .connector-line.active {
-            background: rgba(0,212,255,0.4);
-            box-shadow: 0 0 8px rgba(0,212,255,0.3);
-        }
-
-        /* Node content */
         .node-icon {
-            font-size: 24px;
+            font-size: 28px;
             margin-bottom: 8px;
         }
 
-        .node-title {
+        .node-name {
             font-size: 13px;
             font-weight: 600;
             color: var(--text);
@@ -233,50 +214,90 @@
         }
 
         .node-desc {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-dim);
             line-height: 1.4;
         }
 
-        /* State display */
-        .state-display {
-            position: absolute;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            text-align: center;
-        }
-
-        .state-text {
-            font-size: 22px;
-            font-weight: 700;
+        .node-status {
+            font-size: 10px;
+            font-weight: 600;
             color: var(--cyan);
-            letter-spacing: -0.02em;
-            opacity: 0;
-            transform: translateY(10px);
+            margin-top: 6px;
+            height: 14px;
+        }
+
+        /* Arrow between nodes */
+        .arrow {
+            font-size: 20px;
+            color: rgba(255,255,255,0.1);
             transition: all 0.4s ease;
+            flex-shrink: 0;
         }
 
-        .state-text.visible {
+        .arrow.active { color: var(--cyan); }
+
+        /* Memory popup */
+        .memory-pop {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: rgba(20,15,40,0.95);
+            border: 1px solid rgba(139,92,246,0.4);
+            border-radius: 12px;
+            padding: 16px 24px;
+            width: 480px;
+            max-width: calc(100vw - 64px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s ease;
+            z-index: 10;
+        }
+
+        .memory-pop.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
         }
 
-        /* Case info banner */
+        .memory-pop-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--purple);
+            margin-bottom: 8px;
+        }
+
+        .memory-pop-text {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .memory-pop-text strong { color: var(--text); }
+
+        .memory-pop-source {
+            font-size: 10px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 8px;
+            font-family: monospace;
+        }
+
+        /* Case banner */
         .case-banner {
             position: fixed;
-            bottom: 40px;
+            bottom: 32px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(26,48,96,0.8);
+            background: rgba(26,48,96,0.9);
             border: 1px solid rgba(0,212,255,0.2);
-            border-radius: 12px;
-            padding: 14px 24px;
-            backdrop-filter: blur(16px);
+            border-radius: 10px;
+            padding: 12px 24px;
             display: flex;
             align-items: center;
             gap: 20px;
+            backdrop-filter: blur(16px);
             opacity: 0;
             transition: all 0.4s ease;
             z-index: 10;
@@ -284,130 +305,135 @@
 
         .case-banner.visible { opacity: 1; }
 
-        .case-banner-item {
+        .case-field {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 2px;
         }
 
-        .case-banner-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.1em;
+        .case-field-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--text-dim);
         }
 
-        .case-banner-value {
-            font-size: 13px;
+        .case-field-value {
+            font-size: 12px;
             font-weight: 600;
             color: var(--text);
         }
 
-        .case-banner-sep {
+        .case-sep {
             width: 1px;
-            height: 24px;
-            background: rgba(255,255,255,0.1);
+            height: 28px;
+            background: rgba(255,255,255,0.08);
         }
 
-        /* Memory retrieval flash */
-        .memory-flash {
+        /* Screen flashes */
+        .flash {
             position: fixed;
             inset: 0;
-            background: rgba(139,92,246,0.05);
-            border: 2px solid rgba(139,92,246,0.3);
-            opacity: 0;
             pointer-events: none;
+            opacity: 0;
             transition: opacity 0.3s;
             z-index: 1;
         }
 
-        .memory-flash.active {
-            opacity: 1;
+        .flash.vault {
+            background: rgba(139,92,246,0.06);
+            border: 2px solid rgba(139,92,246,0.3);
         }
 
-        /* Memory card popup */
-        .memory-popup {
+        .flash.ready {
+            background: rgba(16,185,129,0.06);
+            border: 2px solid rgba(16,185,129,0.3);
+        }
+
+        .flash.active { opacity: 1; }
+
+        /* Bottom controls */
+        .controls {
             position: fixed;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: rgba(20,15,40,0.95);
-            border: 1px solid rgba(139,92,246,0.4);
-            border-radius: 12px;
-            padding: 16px 24px;
-            width: 480px;
-            max-width: calc(100vw - 80px);
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.4s ease;
+            bottom: 32px;
+            right: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
             z-index: 20;
         }
 
-        .memory-popup.visible {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
+        .control-note {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-align: right;
+            max-width: 180px;
+            line-height: 1.5;
         }
 
-        .memory-popup-title {
+        /* Vault toggle in observer */
+        .vault-toggle {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--purple);
-            margin-bottom: 10px;
+            gap: 10px;
+            background: rgba(26,48,96,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 10px 16px;
+            cursor: pointer;
         }
 
-        .memory-popup-content {
-            font-size: 13px;
-            color: var(--text-dim);
-            line-height: 1.6;
+        .vault-toggle input { display: none; }
+
+        .vault-toggle-track {
+            width: 36px;
+            height: 20px;
+            background: var(--purple);
+            border-radius: 10px;
+            position: relative;
+            transition: background 0.2s;
+            flex-shrink: 0;
         }
 
-        .memory-popup-content strong { color: var(--text); }
-
-        .memory-popup-source {
-            font-size: 11px;
-            color: var(--text-dim);
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(255,255,255,0.06);
-            font-family: 'Space Grotesk', monospace;
+        .vault-toggle input:not(:checked) + .vault-toggle-track {
+            background: rgba(255,255,255,0.15);
         }
 
-        /* Response ready flash */
-        .response-flash {
-            position: fixed;
-            inset: 0;
-            background: rgba(16,185,129,0.05);
-            border: 2px solid rgba(16,185,129,0.4);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            z-index: 1;
+        .vault-toggle-knob {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 19px;
+            transition: transform 0.2s;
         }
 
-        .response-flash.active {
-            opacity: 1;
+        .vault-toggle input:not(:checked) ~ .vault-toggle-knob {
+            transform: translateX(-16px);
         }
 
-        /* Step indicator */
-        .step-indicator {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
+        .vault-toggle-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Step dots */
+        .steps {
             display: flex;
-            gap: 8px;
-            z-index: 5;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 24px;
+            justify-content: center;
         }
 
         .step-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             background: rgba(255,255,255,0.1);
             transition: all 0.3s;
@@ -415,7 +441,7 @@
 
         .step-dot.active {
             background: var(--cyan);
-            box-shadow: 0 0 12px rgba(0,212,255,0.6);
+            box-shadow: 0 0 10px rgba(0,212,255,0.6);
         }
 
         .step-dot.done {
@@ -423,50 +449,40 @@
         }
 
         /* Waiting state */
-        .waiting-message {
+        .waiting {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 3;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .waiting-text {
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--text-dim);
+            font-size: 15px;
+            color: rgba(255,255,255,0.3);
             animation: breathe 3s ease-in-out infinite;
+            text-align: center;
         }
 
-        @keyframes breathe {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.8; }
-        }
+        @keyframes breathe { 0%,100% { opacity: 0.3; } 50% { opacity: 0.6; } }
 
         .waiting-sub {
             font-size: 12px;
-            color: rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.2);
             margin-top: 8px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .brain-container { transform: scale(0.75); }
-            .brain-node { width: 130px; }
-            .nodes-ring { inset: -40px; }
         }
     </style>
 </head>
 <body>
 
-<div class="memory-flash" id="memoryFlash"></div>
-<div class="response-flash" id="responseFlash"></div>
+<div class="flash vault" id="vaultFlash"></div>
+<div class="flash ready" id="readyFlash"></div>
 
 <!-- Top bar -->
 <div class="topbar">
     <div class="topbar-left">
-        <div class="topbar-logo">Verox<span>.</span></div>
+        <div class="topbar-logo">Verox<span style="color:var(--cyan)">.</span></div>
         <div class="topbar-sub">Observer Mode</div>
     </div>
     <div class="live-badge">
@@ -475,272 +491,344 @@
     </div>
 </div>
 
-<!-- Step dots -->
-<div class="step-indicator" id="stepIndicator">
-    <div class="step-dot" id="dot1"></div>
-    <div class="step-dot" id="dot2"></div>
-    <div class="step-dot" id="dot3"></div>
-    <div class="step-dot" id="dot4"></div>
-</div>
-
-<!-- Main brain view -->
+<!-- Main -->
 <div class="main">
-    <div class="brain-container" id="brain">
+    <div class="brain">
 
-        <!-- State text above -->
-        <div class="state-display">
-            <div class="state-text" id="stateText">Waiting for case...</div>
+        <!-- Step dots -->
+        <div class="steps" id="steps">
+            <div class="step-dot" id="d1"></div>
+            <div class="step-dot" id="d2"></div>
+            <div class="step-dot" id="d3"></div>
+            <div class="step-dot" id="d4"></div>
+            <div class="step-dot" id="d5"></div>
         </div>
 
-        <!-- Central agent -->
-        <div class="agent-center">
-            <div class="agent-orb" id="agentOrb">
-                <div class="agent-icon">🧞</div>
-            </div>
-            <div class="agent-label" id="agentLabel">Genie</div>
-            <div class="agent-sublabel" id="agentSublabel">Agent Engine</div>
+        <!-- State label -->
+        <div class="state-label" id="stateLabel">Waiting for case...</div>
+
+        <!-- Orb -->
+        <div class="orb-wrap">
+            <div class="orb" id="orb">🧞</div>
+            <div class="orb-label">Genie</div>
+            <div class="orb-sub" id="orbSub">Agent Engine</div>
         </div>
 
-        <!-- Nodes ring -->
-        <div class="nodes-ring">
-            <div class="brain-node top-left" id="nodeVault">
+        <!-- Nodes -->
+        <div class="nodes" id="nodes">
+            <div class="node vault" id="nodeVault">
                 <div class="node-icon">📂</div>
-                <div class="node-title">Vault Memory</div>
-                <div class="node-desc">Past cases, lessons learned, resolution patterns</div>
+                <div class="node-name">Vault Memory</div>
+                <div class="node-desc">Past cases, lessons, resolution patterns</div>
+                <div class="node-status" id="vaultStatus"></div>
             </div>
 
-            <div class="brain-node top-right" id="nodeSF">
+            <div class="arrow" id="arrow1">→</div>
+
+            <div class="node sf" id="nodeSF">
                 <div class="node-icon">☁️</div>
-                <div class="node-title">Salesforce</div>
-                <div class="node-desc">Account context, plan details, history</div>
+                <div class="node-name">Salesforce</div>
+                <div class="node-desc">Account info, plan, prior cases</div>
+                <div class="node-status" id="sfStatus"></div>
             </div>
 
-            <div class="brain-node bottom" id="nodeResponse">
+            <div class="arrow" id="arrow2">→</div>
+
+            <div class="node" id="nodeReady">
                 <div class="node-icon">✅</div>
-                <div class="node-title">Response Ready</div>
-                <div class="node-desc">Empathetic, informed, ready to send</div>
+                <div class="node-name">Response Ready</div>
+                <div class="node-desc">Informed, empathetic, ready to send</div>
+                <div class="node-status" id="readyStatus"></div>
             </div>
         </div>
 
         <!-- Waiting message -->
-        <div class="waiting-message" id="waitingMsg">
+        <div class="waiting" id="waiting">
             <div class="waiting-text">Listening for events...</div>
-            <div class="waiting-sub">Click "Generate Response" in the portal</div>
+            <div class="waiting-sub">Open the service portal, select a case, then click Generate Response</div>
         </div>
+
     </div>
 </div>
 
 <!-- Memory popup -->
-<div class="memory-popup" id="memoryPopup">
-    <div class="memory-popup-title">📂 Memory Retrieved</div>
-    <div class="memory-popup-content" id="memoryContent">
-        Found similar case from <strong>March 2024</strong> — same issue, resolved in 8 minutes with specific troubleshooting steps. Applying that pattern here.
+<div class="memory-pop" id="memoryPop">
+    <div class="memory-pop-label">📂 Memory Retrieved</div>
+    <div class="memory-pop-text" id="memoryText">
+        Found similar case from <strong>March 2024</strong> — same issue, resolved in 8 minutes using specific troubleshooting steps.
     </div>
-    <div class="memory-popup-source" id="memorySource">Case #2023-0892 · Resolved · Confidence: 94%</div>
+    <div class="memory-pop-source" id="memorySource">Case #2023-0892 · Confidence: 94%</div>
 </div>
 
 <!-- Case banner -->
 <div class="case-banner" id="caseBanner">
-    <div class="case-banner-item">
-        <span class="case-banner-label">Case</span>
-        <span class="case-banner-value" id="bannerCase">—</span>
+    <div class="case-field">
+        <div class="case-field-label">Case</div>
+        <div class="case-field-value" id="bannerCase">—</div>
     </div>
-    <div class="case-banner-sep"></div>
-    <div class="case-banner-item">
-        <span class="case-banner-label">Customer</span>
-        <span class="case-banner-value" id="bannerCustomer">—</span>
+    <div class="case-sep"></div>
+    <div class="case-field">
+        <div class="case-field-label">Customer</div>
+        <div class="case-field-value" id="bannerCustomer">—</div>
     </div>
-    <div class="case-banner-sep"></div>
-    <div class="case-banner-item">
-        <span class="case-banner-label">Issue</span>
-        <span class="case-banner-value" id="bannerIssue">—</span>
+    <div class="case-sep"></div>
+    <div class="case-field">
+        <div class="case-field-label">Issue</div>
+        <div class="case-field-value" id="bannerIssue">—</div>
     </div>
 </div>
 
+<!-- Controls -->
+<div class="controls">
+    <div class="vault-toggle" onclick="toggleVault()">
+        <div class="vault-toggle-track">
+            <div class="vault-toggle-knob"></div>
+        </div>
+        <div class="vault-toggle-label" id="vaultToggleLabel">📂 Vault: ON</div>
+    </div>
+    <div class="control-note">Toggle vault off to compare responses with and without memory access</div>
+</div>
+
 <script>
-    // State machine
-    const STATES = {
-        IDLE: 'idle',
-        RECEIVING: 'receiving',
-        SEARCHING_VAULT: 'searching_vault',
-        QUERYING_SF: 'querying_sf',
-        SYNTHESIZING: 'synthesizing',
-        READY: 'ready'
-    };
+    // Vault toggle state (shared with portal via API)
+    let vaultEnabled = true;
+    let vaultToggleState = true;
 
-    let currentState = STATES.IDLE;
+    function toggleVault() {
+        vaultEnabled = !vaultEnabled;
+        const label = document.getElementById('vaultToggleLabel');
+        if (vaultEnabled) {
+            label.textContent = '📂 Vault: ON';
+        } else {
+            label.textContent = '📂 Vault: OFF';
+        }
+        // Also toggle in portal via broadcast
+        try {
+            localStorage.setItem('vaultEnabled', vaultEnabled);
+        } catch(e) {}
+    }
 
-    const stateText = document.getElementById('stateText');
-    const agentOrb = document.getElementById('agentOrb');
-    const nodeVault = document.getElementById('nodeVault');
-    const nodeSF = document.getElementById('nodeSF');
-    const nodeResponse = document.getElementById('nodeResponse');
-    const memoryFlash = document.getElementById('memoryFlash');
-    const responseFlash = document.getElementById('responseFlash');
-    const memoryPopup = document.getElementById('memoryPopup');
-    const memoryContent = document.getElementById('memoryContent');
-    const memorySource = document.getElementById('memorySource');
-    const caseBanner = document.getElementById('caseBanner');
-    const waitingMsg = document.getElementById('waitingMsg');
-    const dots = [
-        document.getElementById('dot1'),
-        document.getElementById('dot2'),
-        document.getElementById('dot3'),
-        document.getElementById('dot4')
-    ];
+    // Load vault state from localStorage
+    try {
+        const stored = localStorage.getItem('vaultEnabled');
+        if (stored !== null) vaultEnabled = stored === 'true';
+        const label = document.getElementById('vaultToggleLabel');
+        label.textContent = vaultEnabled ? '📂 Vault: ON' : '📂 Vault: OFF';
+    } catch(e) {}
 
-    function setState(state, text, subtext) {
-        currentState = state;
+    // ── State machine ─────────────────────────────────────
+    let currentStep = 0;
 
-        // Update state text
-        stateText.textContent = text;
-        stateText.classList.add('visible');
-        setTimeout(() => stateText.classList.remove('visible'), 2500);
+    const steps = ['idle', 'case_received', 'sf', 'vault', 'synthesizing', 'ready'];
 
-        // Reset all nodes
-        [nodeVault, nodeSF, nodeResponse].forEach(n => n.classList.remove('active'));
-        agentOrb.classList.remove('active', 'thinking');
-        memoryFlash.classList.remove('active');
-        responseFlash.classList.remove('active');
-        memoryPopup.classList.remove('visible');
-        waitingMsg.style.display = 'none';
+    function goToStep(n) {
+        currentStep = n;
 
         // Update dots
-        const stateOrder = [STATES.RECEIVING, STATES.SEARCHING_VAULT, STATES.QUERYING_SF, STATES.SYNTHESIZING];
-        const stateIdx = stateOrder.indexOf(state);
+        for (let i = 1; i <= 5; i++) {
+            const dot = document.getElementById('d' + i);
+            dot.classList.remove('active', 'done');
+            if (i < n) dot.classList.add('done');
+            if (i === n) dot.classList.add('active');
+        }
 
-        dots.forEach((d, i) => {
-            d.classList.remove('active', 'done');
-            if (i < stateIdx) d.classList.add('done');
-            if (i === stateIdx) d.classList.add('active');
-        });
+        // Reset nodes
+        const orb = document.getElementById('orb');
+        const nodeSF = document.getElementById('nodeSF');
+        const nodeVault = document.getElementById('nodeVault');
+        const nodeReady = document.getElementById('nodeReady');
+        const arrow1 = document.getElementById('arrow1');
+        const arrow2 = document.getElementById('arrow2');
+        const stateLabel = document.getElementById('stateLabel');
+        const waiting = document.getElementById('waiting');
+        const memoryPop = document.getElementById('memoryPop');
+        const vaultFlash = document.getElementById('vaultFlash');
+        const readyFlash = document.getElementById('readyFlash');
+        const vaultStatus = document.getElementById('vaultStatus');
+        const sfStatus = document.getElementById('sfStatus');
+        const orbSub = document.getElementById('orbSub');
 
-        switch (state) {
-            case STATES.RECEIVING:
-                agentOrb.classList.add('active');
+        [nodeSF, nodeVault, nodeReady].forEach(n => n.classList.remove('active', 'done'));
+        [arrow1, arrow2].forEach(a => a.classList.remove('active'));
+        memoryPop.classList.remove('visible');
+        vaultFlash.classList.remove('active');
+        readyFlash.classList.remove('active');
+
+        waiting.style.display = 'none';
+        stateLabel.classList.remove('visible');
+        orb.classList.remove('active', 'thinking');
+
+        switch (n) {
+            case 0: // idle
+                stateLabel.textContent = 'Waiting for case...';
+                stateLabel.classList.add('visible');
+                waiting.style.display = 'flex';
                 break;
 
-            case STATES.SEARCHING_VAULT:
-                agentOrb.classList.add('active', 'thinking');
-                nodeVault.classList.add('active');
-                waitingMsg.style.display = 'none';
+            case 1: // case received
+                orb.classList.add('active');
+                stateLabel.textContent = 'Case Received';
+                stateLabel.classList.add('visible');
+                orbSub.textContent = 'Analyzing...';
                 break;
 
-            case STATES.QUERYING_SF:
-                agentOrb.classList.add('active', 'thinking');
-                nodeVault.classList.add('active');
+            case 2: // Salesforce
+                orb.classList.add('active', 'thinking');
                 nodeSF.classList.add('active');
+                arrow1.classList.add('active');
+                stateLabel.textContent = 'Querying Salesforce...';
+                stateLabel.classList.add('visible');
+                sfStatus.textContent = 'Querying...';
                 break;
 
-            case STATES.SYNTHESIZING:
-                agentOrb.classList.add('active', 'thinking');
-                nodeVault.classList.add('active');
-                nodeSF.classList.add('active');
-                memoryFlash.classList.add('active');
+            case 3: // Vault
+                if (vaultEnabled) {
+                    orb.classList.add('active', 'thinking');
+                    nodeSF.classList.add('active');
+                    nodeSF.classList.add('done');
+                    sfStatus.textContent = '✓';
+                    nodeVault.classList.add('active');
+                    arrow1.classList.add('active');
+                    arrow2.classList.add('active');
+                    stateLabel.textContent = 'Searching Memory...';
+                    stateLabel.classList.add('visible');
+                    vaultStatus.textContent = 'Searching...';
+                    vaultFlash.classList.add('active');
+                } else {
+                    // Skip vault
+                    goToStep(5);
+                    return;
+                }
+                break;
+
+            case 4: // synthesizing
+                orb.classList.add('active', 'thinking');
+                nodeSF.classList.add('active', 'done');
+                sfStatus.textContent = '✓';
+                if (vaultEnabled) {
+                    nodeVault.classList.add('active', 'done');
+                    vaultStatus.textContent = '✓';
+                    memoryPop.classList.add('visible');
+                }
+                nodeReady.classList.add('active');
+                arrow1.classList.add('active');
+                arrow2.classList.add('active');
+                stateLabel.textContent = 'Building Response...';
+                stateLabel.classList.add('visible');
+                orbSub.textContent = 'Synthesizing...';
+                break;
+
+            case 5: // ready
+                nodeSF.classList.add('active', 'done');
+                sfStatus.textContent = '✓';
+                if (vaultEnabled) {
+                    nodeVault.classList.add('active', 'done');
+                    vaultStatus.textContent = '✓';
+                }
+                nodeReady.classList.add('active');
+                orb.classList.add('active');
+                orb.classList.remove('thinking');
+                arrow1.classList.add('active');
+                arrow2.classList.add('active');
+                stateLabel.textContent = 'Response Ready';
+                stateLabel.classList.add('visible');
+                orbSub.textContent = 'Complete';
+                readyFlash.classList.add('active');
+
+                // Auto-return to idle after 4s
                 setTimeout(() => {
-                    memoryPopup.classList.add('visible');
-                }, 600);
-                break;
-
-            case STATES.READY:
-                agentOrb.classList.remove('thinking');
-                nodeVault.classList.add('active');
-                nodeSF.classList.add('active');
-                nodeResponse.classList.add('active');
-                responseFlash.classList.add('active');
-                stateText.textContent = 'Response Ready';
-                stateText.classList.add('visible');
-                setTimeout(() => {
-                    nodeResponse.classList.remove('active');
-                    nodeVault.classList.remove('active');
-                    nodeSF.classList.remove('active');
-                    agentOrb.classList.remove('active');
-                    stateText.textContent = 'Waiting for case...';
-                    stateText.classList.add('visible');
-                    caseBanner.classList.remove('visible');
-                    dots.forEach(d => d.classList.remove('active', 'done'));
+                    goToStep(0);
+                    document.getElementById('caseBanner').classList.remove('visible');
                 }, 4000);
                 break;
         }
     }
 
-    // SSE connection
+    // ── SSE ──────────────────────────────────────────────
     let lastEventTime = 0;
 
     function connect() {
         const source = new EventSource('/api/events/stream');
-
         source.onmessage = (e) => {
             try {
                 const evt = JSON.parse(e.data);
                 handleEvent(evt);
             } catch (err) {}
         };
-
-        source.onerror = () => {
-            source.close();
-            setTimeout(connect, 3000);
-        };
+        source.onerror = () => { source.close(); setTimeout(connect, 3000); };
     }
 
     function handleEvent(evt) {
-        // Debounce — don't re-trigger on old events
-        const eventTime = new Date(evt.timestamp).getTime();
-        if (eventTime <= lastEventTime && evt.type !== 'request') return;
+        const eventTime = new Date(evt.timestamp || 0).getTime();
+        if (eventTime <= lastEventTime && !['case_selected', 'generating'].includes(evt.type)) return;
         if (eventTime > lastEventTime) lastEventTime = eventTime;
 
         switch (evt.type) {
-            case 'request':
-                // Show case banner
-                if (evt.data.type === 'verox_response') {
-                    document.getElementById('bannerCase').textContent = evt.data.case_id || '—';
-                    document.getElementById('bannerCustomer').textContent = evt.data.customer || '—';
-                    const issue = (evt.data.subject || '—').substring(0, 40);
-                    document.getElementById('bannerIssue').textContent = issue + (issue.length > 40 ? '...' : '');
-                    caseBanner.classList.add('visible');
-                }
-                setState(STATES.RECEIVING, 'Case received', '');
+            case 'case_selected':
+                document.getElementById('bannerCase').textContent = evt.data.case_id || '—';
+                document.getElementById('bannerCustomer').textContent = evt.data.customer || '—';
+                const issue = (evt.data.subject || '—').substring(0, 35);
+                document.getElementById('bannerIssue').textContent = issue + (issue.length >= 35 ? '...' : '');
+                document.getElementById('caseBanner').classList.add('visible');
+                goToStep(1);
                 break;
 
-            case 'reasoning':
-                if (evt.data.step && evt.data.step.includes('vault')) {
-                    setState(STATES.SEARCHING_VAULT, 'Searching memory...', '');
-                } else if (evt.data.step && evt.data.step.includes('Salesforce')) {
-                    setState(STATES.QUERYING_SF, 'Checking account...', '');
-                } else if (evt.data.step && evt.data.step.includes('Synthes')) {
-                    setState(STATES.SYNTHESIZING, 'Building response...', '');
-                }
+            case 'generating':
+                vaultEnabled = evt.data.use_vault !== false;
+                goToStep(2);
                 break;
 
-            case 'tool':
-                if (evt.data.tool === 'search_vault' && evt.data.result) {
-                    // Update memory popup with actual result
-                    memoryContent.innerHTML = `<strong>Found similar case:</strong> ${evt.data.result.substring(0, 120)}...`;
-                    memorySource.textContent = `Case matched · retrieved from vault`;
-                }
+            case 'sf_start':
+                goToStep(2);
+                break;
+
+            case 'sf_done':
+                document.getElementById('sfStatus').textContent = '✓ ' + (evt.data.result || '').substring(0, 40);
+                goToStep(3);
+                break;
+
+            case 'vault_start':
+                goToStep(3);
+                break;
+
+            case 'vault_done':
+                document.getElementById('vaultStatus').textContent = '✓ ' + (evt.data.result || '').substring(0, 40);
+                document.getElementById('memoryText').innerHTML = `<strong>Found similar cases:</strong> ${(evt.data.result || '').substring(0, 120)}...`;
+                document.getElementById('memorySource').textContent = `Confidence: ${evt.data.confidence || '94%'} · Retrieved from vault`;
+                break;
+
+            case 'memory_used':
+                document.getElementById('memoryText').innerHTML = `<strong>Memory matched:</strong> ${evt.data.cases} similar cases found`;
+                break;
+
+            case 'synthesizing':
+                goToStep(4);
+                break;
+
+            case 'response_ready':
+                goToStep(5);
                 break;
 
             case 'complete':
-                setState(STATES.READY, 'Response Ready', '');
+                // Already handled
                 break;
         }
     }
 
-    // Poll as fallback
+    // Poll fallback
     async function poll() {
         try {
-            const resp = await fetch('/api/events/recent');
-            const events = await resp.json();
-            events.slice(-10).forEach(e => handleEvent(e));
-        } catch (e) {}
+            const r = await fetch('/api/events/recent');
+            const events = await r.json();
+            events.slice(-15).forEach(e => handleEvent(e));
+        } catch(e) {}
     }
 
     connect();
     setInterval(poll, 2000);
 
-    // Initial state
-    stateText.textContent = 'Waiting for case...';
-    stateText.classList.add('visible');
+    // Init
+    goToStep(0);
 </script>
 
 </body>
