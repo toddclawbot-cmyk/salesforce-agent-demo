@@ -21,6 +21,11 @@ def index():
     """Main demo interface."""
     return render_template("index.html")
 
+@app.route("/story")
+def story():
+    """The Genie origin story — Maya's journey."""
+    return render_template("demo-story.html")
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     """Process a message through Genie."""
