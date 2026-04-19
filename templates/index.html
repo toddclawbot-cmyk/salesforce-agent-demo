@@ -6,711 +6,1351 @@
     <title>Genie — AI Agent Demo</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+        /* ============================================
+           DESIGN SYSTEM — Vantis-inspired premium dark
+           ============================================ */
         :root {
-            --bg-primary: #0f0f14;
-            --bg-secondary: #1a1a24;
-            --bg-tertiary: #24243a;
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.3);
-            --cyan: #06b6d4;
-            --green: #10b981;
-            --purple: #8b5cf6;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border: rgba(255,255,255,0.08);
+            --bg: #0a0a0a;
+            --bg-2: #1a1a1a;
+            --bg-3: #242424;
+            --gold: #c9a84c;
+            --gold-hover: #d4b860;
+            --gold-dim: #a68938;
+            --text: #f5f5f5;
+            --text-2: #a0a0a0;
+            --text-3: #666666;
+            --green: #4a9c6d;
+            --red: #c45c5c;
+            --border: rgba(255,255,255,0.06);
+            --border-gold: rgba(201,168,76,0.3);
         }
-        
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { font-size: 16px; }
+
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
         }
-        
-        /* Animated background */
-        .bg-grid {
+
+        /* Subtle texture */
+        body::before {
+            content: '';
             position: fixed;
             inset: 0;
-            background-image: 
-                linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
             pointer-events: none;
             z-index: 0;
         }
-        
+
+        a { color: var(--gold); text-decoration: none; }
+        a:hover { color: var(--gold-hover); }
+
+        /* ============================================
+           LAYOUT
+           ============================================ */
         .container {
-            max-width: 1100px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 40px 24px;
+            padding: 0 32px;
             position: relative;
             z-index: 1;
         }
-        
-        /* Header */
-        header {
-            text-align: center;
-            margin-bottom: 48px;
+
+        /* ============================================
+           NAVIGATION
+           ============================================ */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 32px;
+            background: rgba(10,10,10,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
         }
-        
-        .logo {
-            display: inline-flex;
+
+        .nav-logo {
+            display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 16px;
         }
-        
-        .logo-icon {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, var(--accent), var(--purple));
-            border-radius: 16px;
+
+        .nav-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gold);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 0 40px var(--accent-glow);
+            font-size: 16px;
+            color: var(--bg);
         }
-        
-        .logo-text {
-            font-size: 42px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
-        }
-        
-        .tagline {
-            color: var(--text-secondary);
-            font-size: 18px;
-            font-weight: 400;
-            margin-bottom: 8px;
-        }
-        
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-        
-        /* Vision Banner */
-        .vision-banner {
-            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
-            border: 1px solid var(--accent);
-            border-radius: 20px;
-            padding: 28px 32px;
-            margin-bottom: 36px;
-            text-align: center;
-        }
-        
-        .vision-banner h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--accent);
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
-        }
-        
-        .vision-banner p {
-            color: var(--text-secondary);
+
+        .nav-logo-text {
             font-size: 15px;
-            line-height: 1.7;
-            max-width: 700px;
-            margin: 0 auto;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text);
         }
-        
-        /* Main Grid */
+
+        .nav-logo-sub {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-3);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-2);
+            letter-spacing: 0.02em;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+
+        .nav-badge {
+            background: rgba(201,168,76,0.12);
+            border: 1px solid var(--border-gold);
+            color: var(--gold);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        /* ============================================
+           HERO
+           ============================================ */
+        .hero {
+            padding: 80px 0 64px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-label::before {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: var(--gold);
+        }
+
+        .hero-title {
+            font-size: clamp(40px, 6vw, 72px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+            color: var(--text);
+            margin-bottom: 24px;
+            max-width: 700px;
+        }
+
+        .hero-title em {
+            font-style: normal;
+            color: var(--gold);
+        }
+
+        .hero-desc {
+            font-size: 18px;
+            font-weight: 300;
+            line-height: 1.7;
+            color: var(--text-2);
+            max-width: 560px;
+            margin-bottom: 40px;
+        }
+
+        .hero-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .hero-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: var(--text-2);
+            font-weight: 500;
+        }
+
+        .hero-pill-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        /* ============================================
+           MAIN GRID
+           ============================================ */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 32px;
+            gap: 1px;
+            background: var(--border);
+            border-bottom: 1px solid var(--border);
         }
-        
-        @media (max-width: 768px) {
-            .main-grid { grid-template-columns: 1fr; }
+
+        .main-grid > section {
+            background: var(--bg);
+            padding: 40px;
         }
-        
-        /* Panel */
-        .panel {
-            background: var(--bg-secondary);
+
+        .full-width { grid-column: 1 / -1; }
+
+        .section-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ============================================
+           CAPABILITY CARDS
+           ============================================ */
+        .capability-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .cap-card {
+            background: var(--bg-2);
             border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: 10px;
+            padding: 24px;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s;
+            position: relative;
             overflow: hidden;
         }
-        
-        .panel-header {
-            padding: 18px 24px;
+
+        .cap-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gold);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .cap-card:hover {
+            border-color: var(--border-gold);
+            transform: translateY(-2px);
+        }
+
+        .cap-card:hover::before { transform: scaleX(1); }
+
+        .cap-card-icon {
+            font-size: 24px;
+            margin-bottom: 14px;
+        }
+
+        .cap-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cap-card-desc {
+            font-size: 12px;
+            color: var(--text-3);
+            line-height: 1.5;
+        }
+
+        /* ============================================
+           CHAT PANEL
+           ============================================ */
+        .chat-terminal {
+            display: flex;
+            flex-direction: column;
+            height: 460px;
+        }
+
+        .chat-output {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-bottom: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--bg-3) transparent;
+        }
+
+        .chat-output::-webkit-scrollbar { width: 4px; }
+        .chat-output::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 2px; }
+
+        .chat-line {
+            display: flex;
+            gap: 12px;
+            animation: lineIn 0.3s ease;
+        }
+
+        @keyframes lineIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-line.user { flex-direction: row-reverse; }
+
+        .chat-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .chat-line.genie .chat-avatar {
+            background: var(--gold);
+            color: var(--bg);
+        }
+
+        .chat-line.user .chat-avatar {
+            background: var(--bg-3);
+            color: var(--text-2);
+        }
+
+        .chat-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .chat-line.genie .chat-bubble {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 2px 10px 10px 10px;
+            color: var(--text);
+        }
+
+        .chat-line.user .chat-bubble {
+            background: var(--gold);
+            color: var(--bg);
+            border-radius: 10px 2px 10px 10px;
+            font-weight: 500;
+        }
+
+        .chat-bubble code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: rgba(201,168,76,0.15);
+            color: var(--gold);
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+
+        .chat-bubble strong { color: var(--gold); font-weight: 600; }
+
+        .chat-bubble ul {
+            margin: 8px 0 0 0;
+            padding-left: 16px;
+        }
+
+        .chat-bubble li { margin-bottom: 4px; }
+
+        /* Tool result styling */
+        .tool-result {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            color: var(--text-2);
+        }
+
+        .tool-result .record {
+            padding: 8px 0;
             border-bottom: 1px solid var(--border);
+        }
+
+        .tool-result .record:last-child { border-bottom: none; }
+
+        .tool-result .label { color: var(--text-3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .tool-result .value { color: var(--text); }
+        .tool-result .value.highlight { color: var(--gold); }
+
+        /* Thinking trace */
+        .reasoning-panel {
+            margin-top: 16px;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .reasoning-header {
+            padding: 10px 16px;
+            background: rgba(201,168,76,0.06);
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reasoning-steps {
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 140px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--bg-3) transparent;
+        }
+
+        .reasoning-step {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-2);
+            padding: 6px 10px;
+            background: var(--bg-3);
+            border-radius: 4px;
+            border-left: 2px solid var(--gold-dim);
+        }
+
+        .reasoning-step.tool { border-left-color: var(--green); }
+        .reasoning-step.reason { border-left-color: var(--gold); }
+
+        /* Chat input */
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus { border-color: var(--gold); }
+        .chat-input::placeholder { color: var(--text-3); }
+
+        .chat-send {
+            background: var(--gold);
+            color: var(--bg);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            white-space: nowrap;
+        }
+
+        .chat-send:hover { background: var(--gold-hover); transform: translateY(-1px); }
+        .chat-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        /* Quick actions */
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .qa-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-3);
+            border-radius: 6px;
+            padding: 7px 14px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .qa-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* ============================================
+           SALESFORCE PANEL
+           ============================================ */
+        .sf-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .sf-cloud {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
-        .panel-icon {
-            width: 32px;
-            height: 32px;
+
+        .sf-cloud-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sf-cloud-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .sf-cloud-sub {
+            font-size: 11px;
+            color: var(--text-3);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .sf-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--green);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .sf-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        .sf-data-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sf-record {
+            background: var(--bg-2);
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: start;
+            border: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .sf-record:hover { border-color: var(--border-gold); }
+
+        .sf-record-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .sf-record-meta {
+            font-size: 11px;
+            color: var(--text-3);
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .sf-record-badge {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge-open { background: rgba(196,92,92,0.15); color: var(--red); }
+        .badge-working { background: rgba(201,168,76,0.15); color: var(--gold); }
+        .badge-closed { background: rgba(74,156,109,0.15); color: var(--green); }
+
+        /* ============================================
+           REASONING PANEL
+           ============================================ */
+        .trace-timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .trace-timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 8px;
+            bottom: 8px;
+            width: 1px;
+            background: linear-gradient(to bottom, var(--gold), transparent);
+        }
+
+        .trace-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .trace-item::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--bg-3);
+            border: 2px solid var(--gold-dim);
+        }
+
+        .trace-item.active::before {
+            background: var(--gold);
+            border-color: var(--gold);
+            box-shadow: 0 0 12px rgba(201,168,76,0.4);
+        }
+
+        .trace-type {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 3px;
+        }
+
+        .trace-desc {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+
+        .trace-detail {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-3);
+            background: var(--bg-2);
+            padding: 6px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* ============================================
+           VAULT PANEL
+           ============================================ */
+        .vault-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .vault-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
         }
-        
-        .panel-title {
-            font-size: 15px;
-            font-weight: 600;
+
+        .vault-count {
+            font-size: 11px;
+            color: var(--text-3);
+            font-family: 'JetBrains Mono', monospace;
         }
-        
-        /* Chat Panel */
-        .chat-panel { grid-column: span 2; }
-        
-        @media (max-width: 768px) {
-            .chat-panel { grid-column: span 1; }
-        }
-        
-        .chat-messages {
-            padding: 24px;
-            height: 380px;
-            overflow-y: auto;
+
+        .vault-notes {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 10px;
         }
-        
-        .chat-messages::-webkit-scrollbar { width: 6px; }
-        .chat-messages::-webkit-scrollbar-track { background: transparent; }
-        .chat-messages::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
-        
-        .genie {
-            max-width: 85%;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .genie.user { align-self: flex-end; }
-        .genie.genie { align-self: flex-start; }
-        
-        .genie-bubble {
-            padding: 14px 18px;
-            border-radius: 16px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        .genie.user .genie-bubble {
-            background: var(--accent);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        
-        .genie.genie .genie-bubble {
-            background: var(--bg-tertiary);
+
+        .vault-note {
+            background: var(--bg-2);
             border: 1px solid var(--border);
-            border-bottom-left-radius: 4px;
-        }
-        
-        .genie.genie .genie-bubble code {
-            background: rgba(99,102,241,0.2);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-        }
-        
-        .genie.genie .genie-bubble strong {
-            color: var(--cyan);
-        }
-        
-        .genie.genie .genie-bubble em {
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-        
-        /* Thinking trace */
-        .thinking-section {
-            background: var(--bg-tertiary);
-            border-top: 1px solid var(--border);
-            padding: 18px 24px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: var(--text-muted);
-            max-height: 180px;
-            overflow-y: auto;
-        }
-        
-        .thinking-section::-webkit-scrollbar { width: 4px; }
-        .thinking-section::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
-        
-        .thinking-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            color: var(--purple);
-            font-weight: 500;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .thinking-step {
-            padding: 4px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .thinking-step:last-child { border-bottom: none; }
-        
-        /* Chat Input */
-        .chat-input-area {
-            padding: 18px 24px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 12px;
-        }
-        
-        .chat-input {
-            flex: 1;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 16px;
-            color: var(--text-primary);
-            font-size: 14px;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        
-        .chat-input:focus { border-color: var(--accent); }
-        .chat-input::placeholder { color: var(--text-muted); }
-        
-        .send-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 8px;
+            padding: 14px 16px;
             cursor: pointer;
             transition: all 0.2s;
+            border-left: 3px solid transparent;
         }
-        
-        .send-btn:hover { background: var(--purple); transform: translateY(-1px); }
-        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        
-        /* Tools Panel */
-        .tools-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            padding: 20px;
+
+        .vault-note:hover {
+            border-color: var(--border-gold);
+            border-left-color: var(--gold);
         }
-        
-        .tool-card {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .tool-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-        
-        .tool-card.active {
-            border-color: var(--green);
-            background: rgba(16, 185, 129, 0.1);
-        }
-        
-        .tool-name {
+
+        .vault-note-name {
             font-size: 13px;
             font-weight: 600;
-            color: var(--text-primary);
+            color: var(--text);
             margin-bottom: 4px;
             font-family: 'JetBrains Mono', monospace;
         }
-        
-        .tool-desc {
-            font-size: 12px;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-        
-        /* Quick Actions */
-        .quick-actions {
-            padding: 16px 20px;
-            border-top: 1px solid var(--border);
-        }
-        
-        .quick-label {
+
+        .vault-note-meta {
             font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 10px;
+            color: var(--text-3);
+            display: flex;
+            gap: 8px;
         }
-        
-        .quick-btns {
+
+        .vault-note-tag {
+            background: var(--bg-3);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            color: var(--gold-dim);
+        }
+
+        /* ============================================
+           ARCHITECTURE DIAGRAM
+           ============================================ */
+        .arch-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .arch-row {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .arch-row:last-child { border-bottom: none; }
+
+        .arch-row-label {
+            padding: 16px 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            border-right: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+
+        .arch-row-content {
+            padding: 16px 20px;
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            align-items: center;
         }
-        
-        .quick-btn {
-            background: var(--bg-tertiary);
+
+        .arch-chip {
+            background: var(--bg-2);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 14px;
+            border-radius: 6px;
+            padding: 6px 12px;
             font-size: 12px;
-            color: var(--text-secondary);
-            cursor: pointer;
+            color: var(--text);
+            font-weight: 500;
             transition: all 0.2s;
         }
-        
-        .quick-btn:hover {
-            border-color: var(--accent);
-            color: var(--text-primary);
+
+        .arch-chip:hover {
+            border-color: var(--border-gold);
+            color: var(--gold);
         }
-        
-        /* Loading */
-        .loading {
-            display: inline-flex;
+
+        .arch-chip.highlight {
+            border-color: var(--border-gold);
+            background: rgba(201,168,76,0.08);
+            color: var(--gold);
+        }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        footer {
+            padding: 32px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-left {
+            display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--text-muted);
-            font-size: 14px;
         }
-        
+
+        .footer-logo {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .footer-sep { color: var(--text-3); }
+
+        .footer-tagline {
+            font-size: 12px;
+            color: var(--text-3);
+            font-style: italic;
+        }
+
+        .footer-right {
+            font-size: 12px;
+            color: var(--text-3);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 1024px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: 1; }
+            .capability-grid { grid-template-columns: 1fr; }
+            .hero-title { font-size: 40px; }
+            nav .nav-links { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 20px; }
+            nav { padding: 0 20px; }
+            .hero { padding: 48px 0 40px; }
+            .hero-title { font-size: 32px; }
+            .main-grid > section { padding: 24px; }
+            footer { flex-direction: column; gap: 12px; text-align: center; }
+        }
+
+        /* ============================================
+           LOADING
+           ============================================ */
         .loading-dots {
-            display: flex;
+            display: inline-flex;
             gap: 4px;
+            align-items: center;
         }
-        
+
         .loading-dots span {
-            width: 6px;
-            height: 6px;
-            background: var(--accent);
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
+            background: var(--gold);
+            animation: dotPulse 1.4s infinite ease-in-out;
         }
-        
+
         .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
         .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-        
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
         }
-        
-        /* Architecture Diagram */
-        .arch-diagram {
-            padding: 20px;
-        }
-        
-        .arch-layer {
-            margin-bottom: 16px;
-        }
-        
-        .arch-layer-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .arch-layer-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 4px;
-        }
-        
-        .arch-layer-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        
-        .arch-components {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding-left: 22px;
-        }
-        
-        .arch-comp {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 12px;
-        }
-        
-        .arch-comp-name {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 2px;
-        }
-        
-        .arch-comp-desc {
-            color: var(--text-muted);
-            font-size: 11px;
-        }
-        
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 24px;
-            color: var(--text-muted);
-            font-size: 12px;
-            border-top: 1px solid var(--border);
-            margin-top: 16px;
-        }
-        
-        footer a { color: var(--accent); text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="bg-grid"></div>
-    
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">🧙</div>
-                <div class="logo-text">Genie</div>
-            </div>
-            <p class="tagline">Your AI Agent for the Agentic Enterprise</p>
-            <p class="subtitle">Built with LangGraph • Connected to Salesforce • Powered by Claude</p>
-        </header>
-        
-        <div class="vision-banner">
-            <h2>🌐 The Vision: Portable AI Agents</h2>
-            <p>
-                In the future, <strong>you won't bring your resume to a new job — you'll bring your agent</strong>. 
-                Your agent carries your knowledge, context, working style, and memory. 
-                Companies will expose their systems via MCP (Model Context Protocol), 
-                and your agent will plug right in — ready to work on day one.
-            </p>
+
+<!-- NAVIGATION -->
+<nav>
+    <div class="nav-logo">
+        <div class="nav-logo-icon">✦</div>
+        <div>
+            <div class="nav-logo-text">Genie</div>
+            <div class="nav-logo-sub">AI Agent Demo</div>
         </div>
-        
-        <div class="main-grid">
-            <!-- Chat Panel -->
-            <div class="panel chat-panel">
-                <div class="panel-header">
-                    <div class="panel-icon" style="background: rgba(99,102,241,0.2);">💬</div>
-                    <div class="panel-title">Chat with Genie</div>
-                </div>
-                
-                <div class="chat-messages" id="chatGenies">
-                    <div class="genie genie">
-                        <div class="genie-bubble">
-                            Hello! I'm <strong>Genie</strong>, your Salesforce development agent. 🧙‍♂️<br><br>
-                            I have access to your Obsidian vault, Salesforce data, and web search. Try asking me about:<br><br>
-                            • <code>Search for open cases in Salesforce</code><br>
-                            • <code>What does my vault say about Agentforce?</code><br>
-                            • <code>Create a follow-up task for the Acme account</code>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="thinking-section" id="thinkingSection" style="display: none;">
-                    <div class="thinking-header">🧠 Reasoning Trace</div>
-                    <div id="thinkingSteps"></div>
-                </div>
-                
-                <div class="chat-input-area">
-                    <input type="text" class="chat-input" id="chatInput" placeholder="Ask Genie anything..." onkeypress="handleKeyPress(event)">
-                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
-                </div>
-            </div>
-            
-            <!-- Tools Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    <div class="panel-icon" style="background: rgba(6,182,212,0.2);">🔧</div>
-                    <div class="panel-title">Available Tools</div>
-                </div>
-                <div class="tools-grid" id="toolsGrid">
-                    <div class="tool-card" onclick="insertQuery('search vault for ')">
-                        <div class="tool-name">search_vault</div>
-                        <div class="tool-desc">Find notes from Obsidian vault</div>
-                    </div>
-                    <div class="tool-card" onclick="insertQuery('query salesforce for ')">
-                        <div class="tool-name">sf_query</div>
-                        <div class="tool-desc">SOQL query Salesforce</div>
-                    </div>
-                    <div class="tool-card" onclick="insertQuery('create task in salesforce ')">
-                        <div class="tool-name">sf_create_task</div>
-                        <div class="tool-desc">Create a follow-up task</div>
-                    </div>
-                    <div class="tool-card" onclick="insertQuery('search the web for ')">
-                        <div class="tool-name">web_search</div>
-                        <div class="tool-desc">Search the internet</div>
-                    </div>
-                </div>
-                
-                <div class="quick-actions">
-                    <div class="quick-label">Quick Actions</div>
-                    <div class="quick-btns">
-                        <button class="quick-btn" onclick="sendPreset('Find open cases for Acme Corp')">🔍 Open Cases</button>
-                        <button class="quick-btn" onclick="sendPreset('Search my vault for Agentforce notes')">📚 Agentforce</button>
-                        <button class="quick-btn" onclick="sendPreset('Show me accounts in Salesforce')">🏢 Accounts</button>
-                        <button class="quick-btn" onclick="sendPreset('Create a task to follow up on the Acme deal')">✅ Task</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Architecture Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    <div class="panel-icon" style="background: rgba(139,92,246,0.2);">🏗️</div>
-                    <div class="panel-title">Architecture</div>
-                </div>
-                <div class="arch-diagram" id="archDiagram">
-                    <!-- Loaded dynamically -->
-                    <div class="loading">
-                        <div class="loading-dots"><span></span><span></span><span></span></div>
-                        Loading architecture...
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <footer>
-            Built with ❤️ using LangGraph, Flask, and Claude &nbsp;|&nbsp; 
-            <a href="https://github.com/toddclawbot/salesforce-agent-demo">View on GitHub</a>
-        </footer>
     </div>
-    
-    <script>
-        // Load architecture diagram
-        fetch('/api/architecture')
-            .then(r => r.json())
-            .then(data => {
-                const container = document.getElementById('archDiagram');
-                let html = '';
-                data.layers.forEach(layer => {
-                    html += `<div class="arch-layer">
-                        <div class="arch-layer-header">
-                            <div class="arch-layer-color" style="background: ${layer.color}"></div>
-                            <div class="arch-layer-name">${layer.name}</div>
-                        </div>
-                        <div class="arch-components">`;
-                    layer.components.forEach(comp => {
-                        html += `<div class="arch-comp">
-                            <div class="arch-comp-name">${comp.name}</div>
-                            <div class="arch-comp-desc">${comp.desc}</div>
-                        </div>`;
-                    });
-                    html += '</div></div>';
-                });
-                container.innerHTML = html;
+    <ul class="nav-links">
+        <li><a href="#capabilities">Capabilities</a></li>
+        <li><a href="#demo">Demo</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="https://github.com/toddclawbot-cmyk/salesforce-agent-demo" target="_blank">GitHub</a></li>
+    </ul>
+    <span class="nav-badge">LangGraph + Claude</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-label">Salesforce Principal Architect Interview Demo</div>
+        <h1 class="hero-title">
+            Every employee<br>will have an <em>agent.</em><br>Bring yours.
+        </h1>
+        <p class="hero-desc">
+            A reasoning AI agent built with LangGraph — connected to a personal vault,
+            a Salesforce org, and the web. This is what the headless enterprise looks like.
+        </p>
+        <div class="hero-pills">
+            <div class="hero-pill"><div class="hero-pill-dot"></div>Reasoning traces visible</div>
+            <div class="hero-pill"><div class="hero-pill-dot"></div>Persistent memory</div>
+            <div class="hero-pill"><div class="hero-pill-dot"></div>Multi-tool routing</div>
+            <div class="hero-pill"><div class="hero-pill-dot"></div>MCP-ready architecture</div>
+        </div>
+    </div>
+</section>
+
+<!-- MAIN CONTENT GRID -->
+<div class="main-grid" id="demo">
+
+    <!-- CAPABILITY CARDS (full width) -->
+    <section class="full-width" id="capabilities" style="background: var(--bg-2);">
+        <div style="padding: 40px;">
+            <div class="section-label">Core Capabilities</div>
+            <div class="capability-grid">
+                <div class="cap-card" onclick="sendPreset('Find open cases in Salesforce')">
+                    <div class="cap-card-icon">🔍</div>
+                    <div class="cap-card-title">sf_query</div>
+                    <div class="cap-card-desc">SOQL queries against Salesforce — search Cases, Accounts, Opportunities, Leads, Tasks</div>
+                </div>
+                <div class="cap-card" onclick="sendPreset('Search my vault for Agentforce notes')">
+                    <div class="cap-card-icon">🗂️</div>
+                    <div class="cap-card-title">search_vault</div>
+                    <div class="cap-card-desc">Semantic search across the Obsidian vault — project notes, meetings, research, references</div>
+                </div>
+                <div class="cap-card" onclick="sendPreset('Create a task to follow up on the Acme deal')">
+                    <div class="cap-card-icon">✅</div>
+                    <div class="cap-card-title">sf_create_task</div>
+                    <div class="cap-card-desc">Create follow-up Tasks in Salesforce — logged with full context and priority</div>
+                </div>
+                <div class="cap-card" onclick="sendPreset('Search the web for latest on MCP protocol')">
+                    <div class="cap-card-icon">🌐</div>
+                    <div class="cap-card-title">web_search</div>
+                    <div class="cap-card-desc">Real-time web search — augment vault knowledge with live information</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHAT PANEL -->
+    <section>
+        <div class="section-label">Live Demo</div>
+        <div class="chat-terminal">
+            <div class="chat-output" id="chatOutput">
+                <div class="chat-line genie">
+                    <div class="chat-avatar">G</div>
+                    <div class="chat-bubble">
+                        I'm <strong>Genie</strong> — your AI agent for the agentic enterprise.<br><br>
+                        Ask me to find something in the vault, query Salesforce, or create a task. Watch the <strong>reasoning trace</strong> below to see how I think.
+                        <ul>
+                            <li><code>Find open cases for Acme Corp</code></li>
+                            <li><code>What does my vault say about MCP?</code></li>
+                            <li><code>Create a task to follow up on a deal</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reasoning-panel" id="reasoningPanel" style="display: none;">
+                <div class="reasoning-header">◆ Reasoning Trace</div>
+                <div class="reasoning-steps" id="reasoningSteps"></div>
+            </div>
+
+            <div class="chat-input-row">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ask Genie something..." onkeypress="handleEnter(event)">
+                <button class="chat-send" id="sendBtn" onclick="sendMessage()">Send</button>
+            </div>
+
+            <div class="quick-actions">
+                <button class="qa-btn" onclick="sendPreset('Find open cases for Acme Corp')">Open Cases</button>
+                <button class="qa-btn" onclick="sendPreset('Search my vault for Agentforce')">Agentforce Notes</button>
+                <button class="qa-btn" onclick="sendPreset('Show me accounts in Salesforce')">Accounts</button>
+                <button class="qa-btn" onclick="sendPreset('Create a task to follow up on the Acme deal')">Create Task</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SALESFORCE DATA PANEL -->
+    <section>
+        <div class="sf-header">
+            <div class="sf-cloud">
+                <div class="sf-cloud-icon">☁️</div>
+                <div>
+                    <div class="sf-cloud-name">Salesforce</div>
+                    <div class="sf-cloud-sub">demo org — mock data</div>
+                </div>
+            </div>
+            <div class="sf-status">
+                <div class="sf-status-dot"></div>
+                API Connected
+            </div>
+        </div>
+
+        <div class="section-label">Recent Cases</div>
+        <div class="sf-data-grid" id="sfCases">
+            <div class="sf-record">
+                <div>
+                    <div class="sf-record-title">Login issue for mobile app</div>
+                    <div class="sf-record-meta">
+                        <span>Acme Corp</span>
+                        <span>High Priority</span>
+                    </div>
+                </div>
+                <span class="sf-record-badge badge-open">Open</span>
+            </div>
+            <div class="sf-record">
+                <div>
+                    <div class="sf-record-title">API rate limit exceeded</div>
+                    <div class="sf-record-meta">
+                        <span>Globex Industries</span>
+                        <span>Medium Priority</span>
+                    </div>
+                </div>
+                <span class="sf-record-badge badge-working">Working</span>
+            </div>
+            <div class="sf-record">
+                <div>
+                    <div class="sf-record-title">Data export failing</div>
+                    <div class="sf-record-meta">
+                        <span>Initech</span>
+                        <span>Low Priority</span>
+                    </div>
+                </div>
+                <span class="sf-record-badge badge-open">Open</span>
+            </div>
+        </div>
+
+        <div class="section-label" style="margin-top: 28px;">Accounts</div>
+        <div class="sf-data-grid" id="sfAccounts">
+            <div class="sf-record">
+                <div>
+                    <div class="sf-record-title">Acme Corp</div>
+                    <div class="sf-record-meta">
+                        <span>Technology</span>
+                        <span>$50M revenue</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sf-record">
+                <div>
+                    <div class="sf-record-title">Globex Industries</div>
+                    <div class="sf-record-meta">
+                        <span>Manufacturing</span>
+                        <span>$120M revenue</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REASONING TRACE PANEL -->
+    <section>
+        <div class="section-label">How Reasoning Works</div>
+        <div class="trace-timeline" id="traceTimeline">
+            <div class="trace-item active">
+                <div class="trace-type">Input</div>
+                <div class="trace-desc">User submits a natural language query</div>
+                <div class="trace-detail">"Find open cases for Acme Corp"</div>
+            </div>
+            <div class="trace-item">
+                <div class="trace-type">Intent Classification</div>
+                <div class="trace-desc">Route to the appropriate tool based on keywords and context</div>
+                <div class="trace-detail">case + search → sf_query</div>
+            </div>
+            <div class="trace-item">
+                <div class="trace-type">Tool Execution</div>
+                <div class="trace-desc">Execute SOQL query against Salesforce REST API</div>
+                <div class="trace-detail">SELECT Id, Subject, Status FROM Case WHERE ...</div>
+            </div>
+            <div class="trace-item">
+                <div class="trace-type">Response Synthesis</div>
+                <div class="trace-desc">Format results into a clear, actionable response with context</div>
+                <div class="trace-detail">3 records → structured bullet list</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VAULT PANEL -->
+    <section>
+        <div class="vault-header">
+            <div>
+                <div class="section-label" style="margin-bottom: 8px;">Obsidian Vault</div>
+            </div>
+            <div class="vault-count">5 notes indexed</div>
+        </div>
+        <div class="vault-notes">
+            <div class="vault-note">
+                <div class="vault-note-name">agentforce-adoption.md</div>
+                <div class="vault-note-meta">
+                    <span class="vault-note-tag">project</span>
+                    <span>Apr 15, 2026</span>
+                    <span>Agentforce 2.0 rollout</span>
+                </div>
+            </div>
+            <div class="vault-note">
+                <div class="vault-note-name">mcp-architecture.md</div>
+                <div class="vault-note-meta">
+                    <span class="vault-note-tag">research</span>
+                    <span>Apr 10, 2026</span>
+                    <span>MCP protocol deep dive</span>
+                </div>
+            </div>
+            <div class="vault-note">
+                <div class="vault-note-name">sfdc-rest-api-notes.md</div>
+                <div class="vault-note-meta">
+                    <span class="vault-note-tag">reference</span>
+                    <span>Apr 18, 2026</span>
+                    <span>SOQL, endpoints, auth</span>
+                </div>
+            </div>
+            <div class="vault-note">
+                <div class="vault-note-name">vault-kb-retrieval.md</div>
+                <div class="vault-note-meta">
+                    <span class="vault-note-tag">research</span>
+                    <span>Apr 12, 2026</span>
+                    <span>RAG architecture</span>
+                </div>
+            </div>
+            <div class="vault-note">
+                <div class="vault-note-name">persona-guidelines.md</div>
+                <div class="vault-note-meta">
+                    <span class="vault-note-tag">reference</span>
+                    <span>Apr 19, 2026</span>
+                    <span>Agent values &amp; escalation</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ARCHITECTURE (full width) -->
+    <section class="full-width" id="architecture">
+        <div style="padding: 40px;">
+            <div class="section-label">System Architecture — MCP Pattern</div>
+            <div class="arch-flow">
+                <div class="arch-row">
+                    <div class="arch-row-label">Employee's Agent</div>
+                    <div class="arch-row-content">
+                        <span class="arch-chip highlight">Memory</span>
+                        <span class="arch-chip highlight">Personality</span>
+                        <span class="arch-chip highlight">Skills</span>
+                        <span class="arch-chip">Preferences</span>
+                        <span class="arch-chip">Context</span>
+                    </div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-row-label">LangGraph Framework</div>
+                    <div class="arch-row-content">
+                        <span class="arch-chip">State Machine</span>
+                        <span class="arch-chip">Tool Router</span>
+                        <span class="arch-chip">Reasoning Loop</span>
+                        <span class="arch-chip">Memory Nodes</span>
+                    </div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-row-label">MCP Tool Layer</div>
+                    <div class="arch-row-content">
+                        <span class="arch-chip">search_vault</span>
+                        <span class="arch-chip">sf_query</span>
+                        <span class="arch-chip">sf_create_task</span>
+                        <span class="arch-chip">web_search</span>
+                    </div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-row-label">Company Infra</div>
+                    <div class="arch-row-content">
+                        <span class="arch-chip">Salesforce</span>
+                        <span class="arch-chip">Slack</span>
+                        <span class="arch-chip">MCP Registry</span>
+                        <span class="arch-chip">Auth &amp; Governance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-left">
+        <span class="footer-logo">Genie</span>
+        <span class="footer-sep">·</span>
+        <span class="footer-tagline">"You won't bring your resume. You'll bring your agent."</span>
+    </div>
+    <div class="footer-right">
+        Built with LangGraph + Flask + Claude · Todd Ghidaleson
+    </div>
+</footer>
+
+<script>
+    // ── Chat ──────────────────────────────────────────────
+    let isLoading = false;
+
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message || isLoading) return;
+
+        isLoading = true;
+        document.getElementById('sendBtn').disabled = true;
+        input.value = '';
+
+        appendChat('user', message);
+
+        const loadingLine = appendChat('genie', 
+            '<div class="loading-dots"><span></span><span></span><span></span></div> Thinking...'
+        );
+
+        try {
+            const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
             });
-        
-        // Chat functionality
-        let isLoading = false;
-        
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            if (!genie || isLoading) return;
-            
-            isLoading = true;
-            document.getElementById('sendBtn').disabled = true;
-            
-            // Add user genie
-            addGenie('user', genie);
-            input.value = '';
-            
-            // Show loading
-            const loadingDiv = addGenie('genie', '<div class="loading"><div class="loading-dots"><span></span><span></span><span></span></div> Thinking...</div>');
-            
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ genie })
-                });
-                
-                const data = await response.json();
-                
-                // Remove loading genie
-                loadingDiv.remove();
-                
-                // Add response
-                addGenie('genie', data.answer);
-                
-                // Show thinking trace
-                if (data.reasoning_trace && data.reasoning_trace.length > 0) {
-                    showThinking(data.reasoning_trace);
-                }
-                
-                // Highlight used tools
-                if (data.tools_used && data.tools_used.length > 0) {
-                    data.tools_used.forEach(tool => {
-                        const cards = document.querySelectorAll('.tool-card');
-                        cards.forEach(card => {
-                            if (card.querySelector('.tool-name').textContent === tool) {
-                                card.classList.add('active');
-                                setTimeout(() => card.classList.remove('active'), 2000);
-                            }
-                        });
-                    });
-                }
-            } catch (err) {
-                loadingDiv.remove();
-                addGenie('genie', 'Sorry, I encountered an error. Please try again.');
+            const data = await resp.json();
+
+            loadingLine.remove();
+            appendChat('genie', formatResponse(data.answer));
+
+            if (data.reasoning_trace && data.reasoning_trace.length > 0) {
+                showReasoning(data.reasoning_trace);
             }
-            
-            isLoading = false;
-            document.getElementById('sendBtn').disabled = false;
+        } catch (e) {
+            loadingLine.remove();
+            appendChat('genie', 'Something went wrong. Please try again.');
         }
-        
-        function addGenie(type, content) {
-            const container = document.getElementById('chatGenies');
-            const div = document.createElement('div');
-            div.className = `genie ${type}`;
-            div.innerHTML = `<div class="genie-bubble">${content}</div>`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-            return div;
+
+        isLoading = false;
+        document.getElementById('sendBtn').disabled = false;
+        document.getElementById('chatInput').focus();
+    }
+
+    function appendChat(type, content) {
+        const out = document.getElementById('chatOutput');
+        const div = document.createElement('div');
+        div.className = `chat-line ${type}`;
+        div.innerHTML = `<div class="chat-avatar">${type === 'genie' ? 'G' : 'T'}</div><div class="chat-bubble">${content}</div>`;
+        out.appendChild(div);
+        out.scrollTop = out.scrollHeight;
+        return div;
+    }
+
+    function formatResponse(text) {
+        // If it looks like structured data (JSON-ish), format it
+        if (text.includes('**') || text.includes('•') || text.includes('|')) {
+            return `<div class="tool-result">${text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/•/g, '◆').replace(/\|/g, '│')}</div>`;
         }
-        
-        function showThinking(steps) {
-            const section = document.getElementById('thinkingSection');
-            const stepsDiv = document.getElementById('thinkingSteps');
-            section.style.display = 'block';
-            stepsDiv.innerHTML = steps.map(step => `<div class="thinking-step">${step}</div>`).join('');
-        }
-        
-        function handleKeyPress(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        }
-        
-        function sendPreset(genie) {
-            document.getElementById('chatInput').value = genie;
+        return text;
+    }
+
+    function showReasoning(steps) {
+        const panel = document.getElementById('reasoningPanel');
+        const container = document.getElementById('reasoningSteps');
+        panel.style.display = 'block';
+        container.innerHTML = steps.map(step => {
+            const isTool = step.startsWith('🔧');
+            const cls = isTool ? 'tool' : 'reason';
+            return `<div class="reasoning-step ${cls}">${step}</div>`;
+        }).join('');
+    }
+
+    function handleEnter(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
             sendMessage();
         }
-        
-        function insertQuery(text) {
-            document.getElementById('chatInput').value = text;
-            document.getElementById('chatInput').focus();
-        }
-    </script>
+    }
+
+    function sendPreset(message) {
+        document.getElementById('chatInput').value = message;
+        sendMessage();
+    }
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
+
 </body>
 </html>
