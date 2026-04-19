@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verox Wireless — Nationwide 5G</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy: #0b1628;
+            --navy-mid: #122040;
+            --navy-light: #1a3060;
+            --cyan: #00d4ff;
+            --cyan-dim: #00a8cc;
+            --white: #ffffff;
+            --gray-100: #f4f7fb;
+            --gray-200: #e8edf5;
+            --gray-300: #c8d4e8;
+            --gray-500: #8899b4;
+            --gray-700: #445570;
+            --text: #0b1628;
+            --text-light: #445570;
+            --accent: #00d4ff;
+            --border: rgba(255,255,255,0.1);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+        /* ── Navigation ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 48px;
+            background: rgba(11,22,40,0.96);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo-mark {
+            width: 36px;
+            height: 36px;
+            position: relative;
+        }
+
+        .nav-logo-mark svg { width: 100%; height: 100%; }
+
+        .nav-logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo-text span { color: var(--cyan); }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.2s;
+            letter-spacing: 0.01em;
+        }
+
+        .nav-links a:hover { color: var(--cyan); }
+
+        .nav-cta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-employee {
+            background: transparent;
+            border: 1px solid rgba(0,212,255,0.4);
+            color: var(--cyan);
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-employee:hover {
+            background: rgba(0,212,255,0.1);
+            border-color: var(--cyan);
+        }
+
+        .btn-primary {
+            background: var(--cyan);
+            color: var(--navy);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary:hover { background: #33ddff; transform: translateY(-1px); }
+
+        /* ── Hero ── */
+        .hero {
+            background: var(--navy);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 72px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0,212,255,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 80% 70%, rgba(0,168,204,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Network grid pattern */
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300d4ff' fill-opacity='0.03'%3E%3Cpath d='M30 0L30 60M0 30L60 30M15 15L45 45M45 15L15 45' stroke-width='0.5'/%3E%3Ccircle cx='30' cy='30' r='1' fill='%2300d4ff' fill-opacity='0.2'/%3E%3Ccircle cx='0' cy='30' r='1' fill='%2300d4ff' fill-opacity='0.1'/%3E%3Ccircle cx='60' cy='30' r='1' fill='%2300d4ff' fill-opacity='0.1'/%3E%3Ccircle cx='30' cy='0' r='1' fill='%2300d4ff' fill-opacity='0.1'/%3E%3Ccircle cx='30' cy='60' r='1' fill='%2300d4ff' fill-opacity='0.1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .hero-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 80px 48px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .eyebrow-badge {
+            background: rgba(0,212,255,0.12);
+            border: 1px solid rgba(0,212,255,0.3);
+            color: var(--cyan);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(40px, 5vw, 68px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            color: var(--white);
+            margin-bottom: 24px;
+        }
+
+        .hero-title em {
+            font-style: normal;
+            color: var(--cyan);
+        }
+
+        .hero-desc {
+            font-size: 18px;
+            font-weight: 300;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 40px;
+            max-width: 480px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .phone-mockup {
+            width: 280px;
+            height: 560px;
+            background: #0d1b2e;
+            border-radius: 40px;
+            border: 2px solid rgba(255,255,255,0.1);
+            padding: 12px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0a1628 0%, #122040 100%);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+        }
+
+        .phone-signal {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 16px;
+        }
+
+        .phone-signal span {
+            width: 3px;
+            background: var(--cyan);
+            border-radius: 2px;
+        }
+
+        .phone-signal span:nth-child(1) { height: 6px; opacity: 0.3; }
+        .phone-signal span:nth-child(2) { height: 10px; opacity: 0.5; }
+        .phone-signal span:nth-child(3) { height: 14px; opacity: 0.7; }
+        .phone-signal span:nth-child(4) { height: 18px; }
+
+        .phone-status {
+            font-size: 9px;
+            color: rgba(255,255,255,0.5);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            margin-bottom: 24px;
+        }
+
+        .phone-network-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+
+        .phone-speed {
+            text-align: center;
+        }
+
+        .phone-speed-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--cyan);
+            line-height: 1;
+        }
+
+        .phone-speed-unit {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .phone-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        /* Signal rings emanating from phone */
+        .hero-visual::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,212,255,0.1);
+            animation: ringExpand 4s ease-out infinite;
+        }
+
+        .hero-visual::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,212,255,0.05);
+            animation: ringExpand 4s ease-out 2s infinite;
+        }
+
+        @keyframes ringExpand {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        /* ── Products strip ── */
+        .products {
+            background: var(--white);
+            padding: 80px 0;
+        }
+
+        .products-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 48px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--cyan-dim);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--navy);
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            font-size: 17px;
+            color: var(--text-light);
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .product-card {
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.25s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 8px 32px rgba(0,212,255,0.12);
+            transform: translateY(-4px);
+        }
+
+        .product-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--navy);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .product-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .product-desc {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .product-link {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--cyan-dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ── Coverage ── */
+        .coverage {
+            background: var(--gray-100);
+            padding: 80px 0;
+        }
+
+        .coverage-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 48px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+
+        .coverage-map {
+            background: var(--navy);
+            border-radius: 20px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coverage-map::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='400' height='300' viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='300' fill='%230b1628'/%3E%3Cg stroke='%2300d4ff' stroke-width='0.3' fill='none'%3E%3Cpath d='M0 150 Q100 80 200 150 Q300 220 400 150' stroke-opacity='0.3'/%3E%3Cpath d='M0 120 Q100 50 200 120 Q300 190 400 120' stroke-opacity='0.2'/%3E%3Cpath d='M0 180 Q100 110 200 180 Q300 250 400 180' stroke-opacity='0.15'/%3E%3Crect x='50' y='80' width='80' height='60' rx='4' stroke-opacity='0.5'/%3E%3Crect x='200' y='100' width='120' height='80' rx='4' stroke-opacity='0.5'/%3E%3Crect x='100' y='180' width='60' height='40' rx='4' stroke-opacity='0.4'/%3E%3C/g%3E%3Cg fill='%2300d4ff'%3E%3Ccircle cx='90' cy='110' r='4' fill-opacity='0.8'/%3E%3Ccircle cx='260' cy='140' r='5' fill-opacity='0.9'/%3E%3Ccircle cx='320' cy='120' r='3' fill-opacity='0.6'/%3E%3Ccircle cx='130' cy='200' r='3' fill-opacity='0.5'/%3E%3Ccircle cx='180' cy='130' r='3' fill-opacity='0.5'/%3E%3Ccircle cx='230' cy='180' r='3' fill-opacity='0.4'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.6;
+        }
+
+        .coverage-legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.covered { background: var(--cyan); }
+        .legend-dot.limited { background: rgba(0,212,255,0.4); }
+        .legend-dot.emergency { background: rgba(255,200,0,0.7); }
+
+        .coverage-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        /* ── Plans ── */
+        .plans {
+            background: var(--white);
+            padding: 80px 0;
+        }
+
+        .plans-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 48px;
+        }
+
+        .plan-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 48px;
+        }
+
+        .plan-card {
+            border: 1px solid var(--gray-300);
+            border-radius: 20px;
+            padding: 36px 32px;
+            position: relative;
+            transition: all 0.25s;
+        }
+
+        .plan-card.featured {
+            background: var(--navy);
+            border-color: var(--navy);
+        }
+
+        .plan-card:hover {
+            box-shadow: 0 12px 40px rgba(11,22,40,0.12);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--cyan);
+            color: var(--navy);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+
+        .plan-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .plan-card:not(.featured) .plan-name { color: var(--navy); }
+        .plan-card.featured .plan-name { color: var(--white); }
+
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .plan-price-big {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .plan-card:not(.featured) .plan-price-big { color: var(--navy); }
+        .plan-card.featured .plan-price-big { color: var(--white); }
+
+        .plan-price-period {
+            font-size: 14px;
+            color: var(--gray-500);
+        }
+
+        .plan-card.featured .plan-price-period { color: rgba(255,255,255,0.5); }
+
+        .plan-desc {
+            font-size: 14px;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid;
+        }
+
+        .plan-card:not(.featured) .plan-desc {
+            color: var(--text-light);
+            border-color: var(--gray-200);
+        }
+
+        .plan-card.featured .plan-desc {
+            color: rgba(255,255,255,0.5);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .plan-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .plan-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .plan-card:not(.featured) .plan-feature { color: var(--text); }
+        .plan-card.featured .plan-feature { color: rgba(255,255,255,0.85); }
+
+        .feature-check {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 10px;
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+        .plan-cta {
+            margin-top: 28px;
+        }
+
+        .plan-card.featured .plan-cta .btn-primary {
+            width: 100%;
+            display: block;
+            text-align: center;
+        }
+
+        /* ── Employee banner ── */
+        .emp-banner {
+            background: var(--navy);
+            padding: 64px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .emp-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 100% at 80% 50%, rgba(0,212,255,0.06) 0%, transparent 70%);
+        }
+
+        .emp-banner-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 48px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .emp-banner-text h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(24px, 3vw, 36px);
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .emp-banner-text p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ── Footer ── */
+        footer {
+            background: #070e1a;
+            padding: 48px;
+        }
+
+        .footer-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .footer-logo-text span { color: var(--cyan); }
+
+        .footer-copy {
+            font-size: 13px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+            .hero-visual { display: none; }
+            .product-grid { grid-template-columns: 1fr; }
+            .plan-grid { grid-template-columns: 1fr; max-width: 400px; margin: 48px auto 0; }
+            .coverage-inner { grid-template-columns: 1fr; }
+            .emp-banner-inner { flex-direction: column; text-align: center; }
+            nav { padding: 0 24px; }
+            .nav-links { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+    <a href="/verox" class="nav-logo">
+        <div class="nav-logo-mark">
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="36" height="36" rx="8" fill="#0b1628"/>
+                <path d="M8 26L14 10L18 18L22 14L28 26" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="28" cy="26" r="2" fill="#00d4ff"/>
+            </svg>
+        </div>
+        <div class="nav-logo-text">Verox<span>.</span></div>
+    </a>
+    <ul class="nav-links">
+        <li><a href="#products">Products</a></li>
+        <li><a href="#coverage">Coverage</a></li>
+        <li><a href="#plans">Plans</a></li>
+        <li><a href="#about">About</a></li>
+    </ul>
+    <div class="nav-cta">
+        <a href="/verox/portal" class="btn-employee">Employee Login</a>
+        <a href="#plans" class="btn-primary">Get Started</a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-content">
+            <div class="hero-eyebrow">
+                <span class="eyebrow-badge">5G Ultra Wideband</span>
+            </div>
+            <h1 class="hero-title">
+                Your world,<br><em>unstoppable.</em>
+            </h1>
+            <p class="hero-desc">
+                Verox Wireless delivers America's most trusted 5G network — built for the way you live, work, and connect. Unlimited plans, no compromises.
+            </p>
+            <div class="hero-actions">
+                <a href="#plans" class="btn-primary">See Plans</a>
+                <a href="#coverage" class="btn-employee" style="border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);">Check Coverage</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="phone-signal">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="phone-status">VEROX 5G UW</div>
+                    <svg class="phone-network-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="40" cy="40" r="8" fill="#00d4ff" opacity="0.9"/>
+                        <circle cx="40" cy="40" r="16" stroke="#00d4ff" stroke-width="1.5" opacity="0.5" fill="none"/>
+                        <circle cx="40" cy="40" r="26" stroke="#00d4ff" stroke-width="1" opacity="0.3" fill="none"/>
+                        <circle cx="40" cy="40" r="36" stroke="#00d4ff" stroke-width="0.5" opacity="0.15" fill="none"/>
+                    </svg>
+                    <div class="phone-speed">
+                        <div class="phone-speed-value">847</div>
+                        <div class="phone-speed-unit">Mbps</div>
+                    </div>
+                    <div class="phone-label">5G Ultra Wideband</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Products -->
+<section class="products" id="products">
+    <div class="products-inner">
+        <div class="section-header">
+            <div class="section-label">What We Offer</div>
+            <h2 class="section-title">Everything you need to stay connected</h2>
+            <p class="section-desc">From unlimited data to cutting-edge devices, Verox has the plans and products to keep you moving.</p>
+        </div>
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </div>
+                <div class="product-name">5G Unlimited</div>
+                <div class="product-desc">Unlimited talk, text, and data on our fastest 5G network. No throttling, no surprises. Ever.</div>
+                <div class="product-link">Learn more →</div>
+            </div>
+            <div class="product-card">
+                <div class="product-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                </div>
+                <div class="product-name">Home Internet</div>
+                <div class="product-desc">5G home broadband delivered straight to your door. No installation, no landline, just fast wireless internet.</div>
+                <div class="product-link">Learn more →</div>
+            </div>
+            <div class="product-card">
+                <div class="product-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                        <line x1="12" y1="19" x2="12" y2="23"/>
+                        <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                </div>
+                <div class="product-name">Verox Devices</div>
+                <div class="product-desc">The latest smartphones, tablets, and smart devices — all powered by the Verox 5G network.</div>
+                <div class="product-link">Learn more →</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Coverage -->
+<section class="coverage" id="coverage">
+    <div class="coverage-inner">
+        <div>
+            <div class="section-label">Coverage</div>
+            <h2 class="section-title">America's most trusted network</h2>
+            <p class="section-desc">Over 325 million people covered coast to coast. Urban, suburban, and rural — Verox keeps you connected wherever you are.</p>
+            <div class="coverage-stats" style="margin-top: 36px;">
+                <div class="stat-card">
+                    <div class="stat-value">325M+</div>
+                    <div class="stat-label">People covered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5G UW</div>
+                    <div class="stat-label">Available in 2,000+ cities</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">99.7%</div>
+                    <div class="stat-label">Network reliability</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">#1</div>
+                    <div class="stat-label">5G network, 3 years running</div>
+                </div>
+            </div>
+        </div>
+        <div class="coverage-map">
+            <svg viewBox="0 0 400 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+                <rect width="400" height="300" rx="12" fill="#0b1628"/>
+                <g stroke="#00d4ff" fill="none">
+                    <path d="M20 150 Q100 80 200 150 Q300 220 380 150" stroke-opacity="0.3" stroke-width="0.5"/>
+                    <path d="M20 120 Q100 50 200 120 Q300 190 380 120" stroke-opacity="0.2" stroke-width="0.5"/>
+                    <path d="M20 180 Q100 110 200 180 Q300 250 380 180" stroke-opacity="0.15" stroke-width="0.5"/>
+                    <path d="M0 150 L400 150" stroke-opacity="0.05" stroke-width="0.5"/>
+                    <path d="M200 0 L200 300" stroke-opacity="0.05" stroke-width="0.5"/>
+                </g>
+                <!-- City nodes -->
+                <circle cx="90" cy="110" r="5" fill="#00d4ff" opacity="0.8"/>
+                <circle cx="130" cy="90" r="3" fill="#00d4ff" opacity="0.5"/>
+                <circle cx="260" cy="130" r="6" fill="#00d4ff" opacity="0.9"/>
+                <circle cx="300" cy="110" r="4" fill="#00d4ff" opacity="0.6"/>
+                <circle cx="330" cy="140" r="3" fill="#00d4ff" opacity="0.5"/>
+                <circle cx="180" cy="160" r="4" fill="#00d4ff" opacity="0.5"/>
+                <circle cx="230" cy="190" r="3" fill="#00d4ff" opacity="0.4"/>
+                <circle cx="140" cy="200" r="3" fill="#00d4ff" opacity="0.4"/>
+                <circle cx="60" cy="160" r="3" fill="#00d4ff" opacity="0.3"/>
+                <circle cx="360" cy="200" r="3" fill="#00d4ff" opacity="0.3"/>
+                <!-- Coverage blobs -->
+                <ellipse cx="90" cy="110" rx="60" ry="40" fill="#00d4ff" opacity="0.05"/>
+                <ellipse cx="260" cy="130" rx="80" ry="50" fill="#00d4ff" opacity="0.07"/>
+                <ellipse cx="330" cy="140" rx="50" ry="35" fill="#00d4ff" opacity="0.04"/>
+                <ellipse cx="180" cy="160" rx="40" ry="30" fill="#00d4ff" opacity="0.04"/>
+            </svg>
+            <div class="coverage-legend">
+                <div class="legend-item"><div class="legend-dot covered"></div>5G Ultra Wideband</div>
+                <div class="legend-item"><div class="legend-dot limited"></div>5G</div>
+                <div class="legend-item"><div class="legend-dot emergency"></div>LTE</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Plans -->
+<section class="plans" id="plans">
+    <div class="plans-inner">
+        <div class="section-header">
+            <div class="section-label">Plans</div>
+            <h2 class="section-title">Simple, honest pricing</h2>
+            <p class="section-desc">No activation fees. No surprise charges. Just fast, reliable 5G at a price that makes sense.</p>
+        </div>
+        <div class="plan-grid">
+            <div class="plan-card">
+                <div class="plan-name">Starter</div>
+                <div class="plan-price">
+                    <span class="plan-price-big">$35</span>
+                    <span class="plan-price-period">/mo</span>
+                </div>
+                <p class="plan-desc">Perfect for light users who just need reliable connectivity.</p>
+                <ul class="plan-features">
+                    <li class="plan-feature"><div class="feature-check">✓</div> 10GB 5G data</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> Unlimited talk & text</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> Mobile hotspot (5GB)</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> 5G access</li>
+                </ul>
+                <div class="plan-cta"><a href="#" class="btn-primary" style="background:#0b1628;color:#fff;display:block;text-align:center;padding:12px;border-radius:6px;font-weight:600;text-decoration:none;">Get Started</a></div>
+            </div>
+            <div class="plan-card featured">
+                <div class="plan-badge">Most Popular</div>
+                <div class="plan-name">Premium Unlimited</div>
+                <div class="plan-price">
+                    <span class="plan-price-big">$65</span>
+                    <span class="plan-price-period">/mo</span>
+                </div>
+                <p class="plan-desc">True unlimited data with 5G Ultra Wideband access included.</p>
+                <ul class="plan-features">
+                    <li class="plan-feature"><div class="feature-check">✓</div> Unlimited 5G data</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> 5G Ultra Wideband</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> 50GB mobile hotspot</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> HD streaming</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> International texting</li>
+                </ul>
+                <div class="plan-cta"><a href="#" class="btn-primary" style="display:block;text-align:center;">Get Started</a></div>
+            </div>
+            <div class="plan-card">
+                <div class="plan-name">Family Share</div>
+                <div class="plan-price">
+                    <span class="plan-price-big">$110</span>
+                    <span class="plan-price-period">/mo</span>
+                </div>
+                <p class="plan-desc">Up to 5 lines, each with unlimited 5G. Mix and match devices.</p>
+                <ul class="plan-features">
+                    <li class="plan-feature"><div class="feature-check">✓</div> 5 lines included</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> Unlimited 5G per line</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> 25GB mobile hotspot per line</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> Verox Guardian included</li>
+                    <li class="plan-feature"><div class="feature-check">✓</div> Premium tech support</li>
+                </ul>
+                <div class="plan-cta"><a href="#" class="btn-primary" style="background:#0b1628;color:#fff;display:block;text-align:center;padding:12px;border-radius:6px;font-weight:600;text-decoration:none;">Get Started</a></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Employee Banner -->
+<section class="emp-banner">
+    <div class="emp-banner-inner">
+        <div class="emp-banner-text">
+            <h2>Verox Employee Portal</h2>
+            <p>Service desk, customer support, and internal tools — all in one place.</p>
+        </div>
+        <a href="/verox/portal" class="btn-employee" style="font-size:15px;padding:14px 32px;white-space:nowrap;">
+            Employee Login →
+        </a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+                <rect width="36" height="36" rx="8" fill="#0b1628"/>
+                <path d="M8 26L14 10L18 18L22 14L28 26" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="28" cy="26" r="2" fill="#00d4ff"/>
+            </svg>
+            <div class="footer-logo-text">Verox<span>.</span></div>
+        </div>
+        <div class="footer-copy">© 2026 Verox Wireless. All rights reserved. 5G service requires compatible device.</div>
+    </div>
+</footer>
+
+</body>
+</html>

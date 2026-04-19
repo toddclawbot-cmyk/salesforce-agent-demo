@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verox — Employee Service Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --bg-card: #ffffff;
+            --navy: #0b1628;
+            --navy-mid: #122040;
+            --cyan: #00d4ff;
+            --cyan-dim: #00a8cc;
+            --text: #0b1628;
+            --text-2: #445570;
+            --text-3: #8899b4;
+            --border: #e2e8f0;
+            --green: #10b981;
+            --green-bg: #ecfdf5;
+            --amber: #f59e0b;
+            --amber-bg: #fffbeb;
+            --red: #ef4444;
+            --red-bg: #fef2f2;
+            --purple: #8b5cf6;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Top Bar ── */
+        .topbar {
+            background: var(--navy);
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .topbar-logo svg { width: 28px; height: 28px; }
+
+        .topbar-logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+
+        .topbar-logo-text span { color: var(--cyan); }
+
+        .topbar-divider {
+            width: 1px;
+            height: 20px;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ── Layout ── */
+        .layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            height: calc(100vh - 56px);
+        }
+
+        /* ── Queue Panel ── */
+        .queue-panel {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .queue-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .queue-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .queue-subtitle {
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        .queue-filters {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-2);
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+        .filter-btn.active { background: var(--cyan); border-color: var(--cyan); color: var(--navy); }
+
+        .queue-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .queue-item {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .queue-item:hover { background: var(--bg); }
+        .queue-item.selected { background: rgba(0,212,255,0.06); border-left-color: var(--cyan); }
+
+        .queue-item-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .queue-customer {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .queue-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .badge-new { background: var(--red-bg); color: var(--red); }
+        .badge-pending { background: var(--amber-bg); color: var(--amber); }
+        .badge-active { background: var(--green-bg); color: var(--green); }
+
+        .queue-issue {
+            font-size: 12px;
+            color: var(--text-2);
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .queue-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--text-3);
+        }
+
+        /* ── Main Panel ── */
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .case-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 28px;
+        }
+
+        .case-header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .case-id {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--text-3);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .case-subject {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.3;
+        }
+
+        .case-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 7px;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-generate {
+            background: var(--cyan);
+            color: var(--navy);
+        }
+
+        .btn-generate:hover { background: #33ddff; transform: translateY(-1px); }
+        .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-resolve {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid rgba(16,185,129,0.2);
+        }
+
+        .btn-resolve:hover { background: #d1fae5; }
+
+        .btn-escalate {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid rgba(245,158,11,0.2);
+        }
+
+        .case-meta-row {
+            display: flex;
+            gap: 24px;
+        }
+
+        .case-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        .case-meta-item strong { color: var(--text); font-weight: 500; }
+
+        /* ── Tabs ── */
+        .tabs {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .tab {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-3);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+        /* ── Content area ── */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ── Customer Context ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-3);
+        }
+
+        .card-body { padding: 18px; }
+
+        .customer-profile {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .customer-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .customer-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .customer-account {
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        .customer-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .field-item label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-3);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .field-item span {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Issue thread */
+        .issue-entry {
+            margin-bottom: 16px;
+        }
+
+        .issue-role {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .issue-role.customer { color: var(--text-3); }
+        .issue-role.agent { color: var(--cyan-dim); }
+
+        .issue-bubble {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .issue-bubble.agent-bubble {
+            background: rgba(0,212,255,0.06);
+            border-color: rgba(0,212,255,0.2);
+        }
+
+        .issue-time {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Genie response */
+        .genie-panel {
+            grid-column: 1 / -1;
+            border-color: rgba(0,212,255,0.3);
+        }
+
+        .genie-panel .card-header {
+            background: rgba(0,212,255,0.04);
+            border-bottom-color: rgba(0,212,255,0.2);
+        }
+
+        .genie-panel .card-title { color: var(--cyan-dim); }
+
+        .genie-response {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text);
+        }
+
+        .genie-response p { margin-bottom: 12px; }
+        .genie-response p:last-child { margin-bottom: 0; }
+
+        .genie-response strong { color: var(--navy); font-weight: 600; }
+
+        .memory-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(139,92,246,0.08);
+            border: 1px solid rgba(139,92,246,0.2);
+            color: var(--purple);
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 4px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .genie-cta {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 40px;
+            text-align: center;
+            color: var(--text-3);
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .empty-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-2);
+            margin-bottom: 6px;
+        }
+
+        .empty-desc {
+            font-size: 13px;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+
+        /* Loading state */
+        .generating-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11,22,40,0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .generating-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .generating-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            min-width: 360px;
+        }
+
+        .gen-animation {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .gen-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: var(--cyan);
+            animation: spin 1s linear infinite;
+        }
+
+        .gen-ring:nth-child(2) { inset: 6px; border-top-color: var(--purple); animation-duration: 0.7s; animation-direction: reverse; }
+        .gen-ring:nth-child(3) { inset: 12px; border-top-color: var(--cyan-dim); animation-duration: 1.3s; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .gen-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .gen-subtitle {
+            font-size: 13px;
+            color: var(--text-3);
+        }
+
+        /* Observer link */
+        .observer-link {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--navy);
+            color: var(--cyan);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            z-index: 50;
+        }
+
+        .observer-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+    </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+    <div class="topbar-left">
+        <a href="/verox" class="topbar-logo">
+            <svg viewBox="0 0 36 36" fill="none">
+                <rect width="36" height="36" rx="8" fill="#0b1628"/>
+                <path d="M8 26L14 10L18 18L22 14L28 26" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="28" cy="26" r="2" fill="#00d4ff"/>
+            </svg>
+            <span class="topbar-logo-text">Verox<span>.</span></span>
+        </a>
+        <div class="topbar-divider"></div>
+        <span class="topbar-title">Employee Service Portal</span>
+    </div>
+    <div class="topbar-right">
+        <div class="topbar-user">
+            <div class="user-avatar">JS</div>
+            <div>
+                <div class="user-name">Jordan Santos</div>
+                <div class="user-role">Support Agent — Tier 2</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Layout -->
+<div class="layout">
+
+    <!-- Queue Panel -->
+    <div class="queue-panel">
+        <div class="queue-header">
+            <div class="queue-title">Service Queue</div>
+            <div class="queue-subtitle">12 open cases · 3 urgent</div>
+        </div>
+        <div class="queue-filters">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Urgent</button>
+            <button class="filter-btn">Active</button>
+            <button class="filter-btn">Pending</button>
+        </div>
+        <div class="queue-list" id="queueList">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="main-panel" id="mainPanel">
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">Select a case from the queue</div>
+            <div class="empty-desc">Choose a customer issue from the left panel to view details and generate a response.</div>
+        </div>
+
+        <!-- Case Detail (hidden until case selected) -->
+        <div id="caseDetail" style="display:none; flex-direction:column; height:100%; overflow:hidden;">
+            <div class="case-header">
+                <div class="case-header-top">
+                    <div>
+                        <div class="case-id" id="caseId">CASE-0001234</div>
+                        <div class="case-subject" id="caseSubject">No service — 5G indicator showing no connection</div>
+                    </div>
+                    <div class="case-actions">
+                        <button class="btn btn-generate" id="btnGenerate" onclick="generateResponse()">
+                            ✦ Generate Response
+                        </button>
+                        <button class="btn btn-resolve" onclick="resolveCase()">✓ Resolve</button>
+                        <button class="btn btn-escalate">↑ Escalate</button>
+                    </div>
+                </div>
+                <div class="case-meta-row">
+                    <div class="case-meta-item">📞 <strong id="caseCustomer">Marcus Webb</strong></div>
+                    <div class="case-meta-item">🏢 Account: <strong id="caseAccount">Webb Holdings LLC</strong></div>
+                    <div class="case-meta-item">📱 <strong id="caseDevice">iPhone 15 Pro</strong></div>
+                    <div class="case-meta-item">⏱ <strong id="caseWait">14 min</strong> wait</div>
+                    <div class="case-meta-item">🏷 <span class="badge-new" id="caseStatus">New</span></div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active">Issue Thread</div>
+                <div class="tab">Account History</div>
+                <div class="tab">Network Status</div>
+                <div class="tab">Previous Cases</div>
+            </div>
+
+            <div class="content-area">
+                <!-- Customer Context -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Customer Context</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="customer-profile">
+                            <div class="customer-avatar" id="customerAvatar">MW</div>
+                            <div>
+                                <div class="customer-name" id="customerName">Marcus Webb</div>
+                                <div class="customer-account" id="customerAccount">Webb Holdings LLC · Enterprise Account</div>
+                            </div>
+                        </div>
+                        <div class="customer-fields">
+                            <div class="field-item">
+                                <label>Account Since</label>
+                                <span>March 2022</span>
+                            </div>
+                            <div class="field-item">
+                                <label>Plan</label>
+                                <span>Premium Unlimited</span>
+                            </div>
+                            <div class="field-item">
+                                <label>Data Used</label>
+                                <span>42GB / Unlimited</span>
+                            </div>
+                            <div class="field-item">
+                                <label>Device</label>
+                                <span>iPhone 15 Pro</span>
+                            </div>
+                            <div class="field-item">
+                                <label>Location</label>
+                                <span>Austin, TX</span>
+                            </div>
+                            <div class="field-item">
+                                <label>CSAT Score</label>
+                                <span>4.7 / 5.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issue Thread -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Issue Thread</span>
+                    </div>
+                    <div class="card-body" id="issueThread">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Genie Response (hidden until generated) -->
+                <div class="card genie-panel" id="geniePanel" style="display:none;">
+                    <div class="card-header">
+                        <span class="card-title">✦ Genie — AI-Generated Response</span>
+                        <span style="font-size:11px;color:var(--green);">✓ Memory retrieved · Draft ready</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="margin-bottom:12px;">
+                            <span class="memory-tag">📂 Case #2023-0892 (Resolved)</span>
+                            <span class="memory-tag">📂 Case #2023-1056 (Resolved)</span>
+                        </div>
+                        <div class="genie-response" id="genieResponse">
+                            <!-- Filled by JS -->
+                        </div>
+                        <div class="genie-cta">
+                            <button class="btn btn-generate" onclick="sendResponse()">↗ Send to Customer</button>
+                            <button class="btn btn-resolve" onclick="resolveCase()">✓ Mark Resolved</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Generating Overlay -->
+<div class="generating-overlay" id="genOverlay">
+    <div class="generating-card">
+        <div class="gen-animation">
+            <div class="gen-ring"></div>
+            <div class="gen-ring"></div>
+            <div class="gen-ring"></div>
+        </div>
+        <div class="gen-title">Genie is reasoning...</div>
+        <div class="gen-subtitle">Retrieving memory + analyzing case context</div>
+    </div>
+</div>
+
+<!-- Observer link -->
+<a href="/verox/observer" class="observer-link" target="_blank">
+    ⚙️ Observer Mode
+</a>
+
+<script>
+    // ── Mock case data ──────────────────────────────────────
+    const cases = [
+        {
+            id: 'CASE-0001234',
+            status: 'new',
+            customer: 'Marcus Webb',
+            company: 'Webb Holdings LLC',
+            initials: 'MW',
+            device: 'iPhone 15 Pro',
+            wait: '14 min',
+            subject: 'No service — 5G indicator showing no connection',
+            issue: "Hi, I've been without service for the past 30 minutes. I'm in a meeting and need to make a call. My phone shows no signal — just the 5G icon with a red X through it. I haven't dropped my phone or done anything different. This is really urgent.",
+            thread: [
+                { role: 'customer', text: "Hi, I've been without service for the past 30 minutes. I'm in a meeting and need to make a call. My phone shows no signal — just the 5G icon with a red X through it. I haven't dropped my phone or done anything different. This is really urgent.", time: '2:34 PM' }
+            ]
+        },
+        {
+            id: 'CASE-0001235',
+            status: 'active',
+            customer: 'Priya Nair',
+            company: 'Nair Consulting',
+            initials: 'PN',
+            device: 'Samsung Galaxy S24',
+            wait: '7 min',
+            subject: 'Data speeds extremely slow — 0.2 Mbps on 5G',
+            issue: "My data is basically unusable. Speed test shows 0.2 Mbps. I'm on 5G with full bars. Started this morning after the update. I have a presentation in 2 hours and need this fixed.",
+            thread: [
+                { role: 'customer', text: "My data is basically unusable. Speed test shows 0.2 Mbps. I'm on 5G with full bars. Started this morning after the update. I have a presentation in 2 hours and need this fixed.", time: '2:27 PM' }
+            ]
+        },
+        {
+            id: 'CASE-0001236',
+            status: 'pending',
+            customer: 'Tom García',
+            company: 'García Construction',
+            initials: 'TG',
+            device: 'iPhone 14',
+            wait: '23 min',
+            subject: 'International roaming not working in Mexico',
+            issue: "I'm in Tijuana for a site visit and my data isn't working at all. I thought roaming was included in my plan. I need to access my email and plans for the project. Can someone help quickly?",
+            thread: [
+                { role: 'customer', text: "I'm in Tijuana for a site visit and my data isn't working at all. I thought roaming was included in my plan. I need to access my email and plans for the project. Can someone help quickly?", time: '2:11 PM' }
+            ]
+        },
+        {
+            id: 'CASE-0001237',
+            status: 'new',
+            customer: 'Aisha Johnson',
+            company: 'Johnson & Associates',
+            initials: 'AJ',
+            device: 'Pixel 8 Pro',
+            wait: '3 min',
+            subject: 'Port-in request showing as rejected',
+            issue: "I switched from AT&T last week and my number still hasn't ported. Verox app says 'port rejected.' I've been without my number for 5 days now and it's affecting my business.",
+            thread: [
+                { role: 'customer', text: "I switched from AT&T last week and my number still hasn't ported. Verox app says 'port rejected.' I've been without my number for 5 days now and it's affecting my business.", time: '2:41 PM' }
+            ]
+        }
+    ];
+
+    // ── Render queue ──────────────────────────────────────
+    function renderQueue() {
+        const list = document.getElementById('queueList');
+        list.innerHTML = cases.map((c, i) => `
+            <div class="queue-item ${i === 0 ? 'selected' : ''}" onclick="selectCase(${i})">
+                <div class="queue-item-top">
+                    <div class="queue-customer">${c.customer}</div>
+                    <span class="queue-badge badge-${c.status}">${c.status === 'new' ? 'New' : c.status === 'active' ? 'Active' : 'Pending'}</span>
+                </div>
+                <div class="queue-issue">${c.subject}</div>
+                <div class="queue-meta">
+                    <span>${c.company}</span>
+                    <span>·</span>
+                    <span>${c.wait} wait</span>
+                    <span>·</span>
+                    <span>${c.device}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ── Select case ──────────────────────────────────────
+    let selectedCase = cases[0];
+
+    function selectCase(index) {
+        selectedCase = cases[index];
+
+        // Update queue selection
+        document.querySelectorAll('.queue-item').forEach((el, i) => {
+            el.classList.toggle('selected', i === index);
+        });
+
+        // Show case detail
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('caseDetail').style.display = 'flex';
+
+        // Populate fields
+        document.getElementById('caseId').textContent = selectedCase.id;
+        document.getElementById('caseSubject').textContent = selectedCase.subject;
+        document.getElementById('caseCustomer').textContent = selectedCase.customer;
+        document.getElementById('caseAccount').textContent = selectedCase.company;
+        document.getElementById('caseDevice').textContent = selectedCase.device;
+        document.getElementById('caseWait').textContent = selectedCase.wait;
+        document.getElementById('customerName').textContent = selectedCase.customer;
+        document.getElementById('customerAccount').textContent = `${selectedCase.company} · Enterprise Account`;
+        document.getElementById('customerAvatar').textContent = selectedCase.initials;
+
+        const statusEl = document.getElementById('caseStatus');
+        statusEl.className = `queue-badge badge-${selectedCase.status}`;
+        statusEl.textContent = selectedCase.status.charAt(0).toUpperCase() + selectedCase.status.slice(1);
+
+        // Render thread
+        document.getElementById('issueThread').innerHTML = selectedCase.thread.map(t => `
+            <div class="issue-entry">
+                <div class="issue-role ${t.role === 'customer' ? 'customer' : 'agent'}">${t.role === 'customer' ? selectedCase.customer : 'Jordan Santos'}</div>
+                <div class="issue-bubble ${t.role === 'agent' ? 'agent-bubble' : ''}">${t.text}</div>
+                <div class="issue-time">${t.time}</div>
+            </div>
+        `).join('');
+
+        // Hide genie panel when switching cases
+        document.getElementById('geniePanel').style.display = 'none';
+        document.getElementById('btnGenerate').disabled = false;
+    }
+
+    // ── Generate response ──────────────────────────────────────
+    async function generateResponse() {
+        const btn = document.getElementById('btnGenerate');
+        const overlay = document.getElementById('genOverlay');
+        btn.disabled = true;
+        overlay.classList.add('visible');
+
+        try {
+            const resp = await fetch('/api/verox/generate-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    case_id: selectedCase.id,
+                    customer: selectedCase.customer,
+                    subject: selectedCase.subject,
+                    issue: selectedCase.issue,
+                    device: selectedCase.device
+                })
+            });
+            const data = await resp.json();
+
+            // Show genie response
+            document.getElementById('geniePanel').style.display = 'block';
+            document.getElementById('genieResponse').innerHTML = `
+                <p><strong>Hi ${selectedCase.customer.split(' ')[0]},</strong></p>
+                <p>I completely understand how critical connectivity is, especially when you're in the middle of something important — and I'm not going anywhere until this is resolved for you.</p>
+                <p>${data.response}</p>
+                <p>${data.next_steps}</p>
+                <p>Please try these steps now and let me know the result. I'm standing by if you need anything else.</p>
+            `;
+
+        } catch (e) {
+            document.getElementById('geniePanel').style.display = 'block';
+            document.getElementById('genieResponse').innerHTML = '<p>Error generating response. Please try again.</p>';
+        }
+
+        overlay.classList.remove('visible');
+    }
+
+    function sendResponse() {
+        const resp = document.getElementById('genieResponse').innerText;
+        selectedCase.thread.push({ role: 'agent', text: resp, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + ' PM' });
+        document.getElementById('issueThread').innerHTML += `
+            <div class="issue-entry">
+                <div class="issue-role agent">Jordan Santos</div>
+                <div class="issue-bubble agent-bubble">${resp}</div>
+                <div class="issue-time">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} PM</div>
+            </div>
+        `;
+        document.getElementById('geniePanel').style.display = 'none';
+        alert('Response sent to customer!');
+    }
+
+    function resolveCase() {
+        alert(`Case ${selectedCase.id} marked as resolved.`);
+    }
+
+    // ── Init ──────────────────────────────────────────────
+    renderQueue();
+    selectCase(0);
+</script>
+
+</body>
+</html>

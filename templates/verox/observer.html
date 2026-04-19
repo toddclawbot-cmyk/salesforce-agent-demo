@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verox — Observer Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-2: #1a1a1a;
+            --bg-3: #242424;
+            --gold: #c9a84c;
+            --text: #f5f5f5;
+            --text-2: #a0a0a0;
+            --text-3: #666;
+            --green: #4a9c6d;
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
+            --orange: #c97a4a;
+            --border: rgba(255,255,255,0.06);
+            --border-gold: rgba(201,168,76,0.3);
+            --verox-blue: #0b1628;
+            --verox-cyan: #00d4ff;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Nav */
+        .topbar {
+            background: var(--verox-blue);
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            border-bottom: 1px solid rgba(0,212,255,0.2);
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+
+        .topbar-logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .topbar-logo-text span { color: var(--verox-cyan); }
+
+        .topbar-sub { font-size: 13px; color: rgba(255,255,255,0.4); }
+
+        .conn-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--green);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .conn-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: calc(100vh - 57px);
+        }
+
+        .panel { overflow-y: auto; }
+
+        .panel-left {
+            border-right: 1px solid var(--border);
+            background: var(--bg-2);
+        }
+
+        .panel-section {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 14px;
+        }
+
+        /* Info cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .info-card {
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .info-card-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-3);
+            margin-bottom: 6px;
+        }
+
+        .info-card-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .info-card-value.cyan { color: var(--verox-cyan); }
+        .info-card-value.green { color: var(--green); }
+
+        /* Explanation */
+        .explanation {
+            font-size: 13px;
+            color: var(--text-2);
+            line-height: 1.7;
+        }
+
+        .explanation p { margin-bottom: 10px; }
+        .explanation strong { color: var(--verox-cyan); }
+
+        /* Log */
+        .event-log {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .event {
+            background: var(--bg-3);
+            border-radius: 6px;
+            padding: 12px 16px;
+            border-left: 3px solid transparent;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-8px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .event.request { border-left-color: var(--purple); }
+        .event.vault { border-left-color: var(--orange); }
+        .event.sf { border-left-color: var(--verox-cyan); }
+        .event.intent { border-left-color: var(--cyan); }
+        .event.reasoning { border-left-color: var(--gold); }
+        .event.complete { border-left-color: var(--green); background: rgba(74,156,109,0.08); }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .event-type {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .event.request .event-type { color: var(--purple); }
+        .event.vault .event-type { color: var(--orange); }
+        .event.sf .event-type { color: var(--verox-cyan); }
+        .event.intent .event-type { color: var(--cyan); }
+        .event.reasoning .event-type { color: var(--gold); }
+        .event.complete .event-type { color: var(--green); }
+
+        .event-time {
+            font-size: 10px;
+            color: var(--text-3);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .event-body {
+            font-size: 12px;
+            color: var(--text-2);
+            line-height: 1.5;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: var(--bg-2);
+            padding: 1px 5px;
+            border-radius: 3px;
+            color: var(--verox-cyan);
+        }
+
+        .event-body .label { color: var(--text-3); }
+
+        .empty-log {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-3);
+        }
+
+        .empty-log-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.4; }
+        .empty-log-title { font-size: 14px; font-weight: 600; color: var(--text-2); margin-bottom: 4px; }
+        .empty-log-desc { font-size: 12px; line-height: 1.5; }
+
+        /* Steps flow */
+        .step-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            opacity: 0.4;
+            transition: all 0.3s;
+        }
+
+        .step.active {
+            opacity: 1;
+            border-color: var(--verox-cyan);
+            background: rgba(0,212,255,0.05);
+        }
+
+        .step.done {
+            opacity: 0.7;
+            border-color: rgba(74,156,109,0.3);
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-3);
+            flex-shrink: 0;
+        }
+
+        .step.active .step-num { background: var(--verox-cyan); border-color: var(--verox-cyan); color: var(--verox-blue); }
+        .step.done .step-num { background: var(--green); border-color: var(--green); color: white; }
+
+        .step-text {
+            font-size: 13px;
+            color: var(--text-2);
+        }
+
+        .step.active .step-text { color: var(--text); font-weight: 500; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-left">
+        <span class="topbar-logo-text">Verox<span style="color:var(--verox-cyan)">.</span></span>
+        <span style="color:rgba(255,255,255,0.3);">·</span>
+        <span class="topbar-sub">Observer Mode — Genie Reasoning Engine</span>
+    </div>
+    <div class="conn-indicator">
+        <div class="conn-dot"></div>
+        <span>Live — /api/events/stream</span>
+    </div>
+</div>
+
+<div class="layout">
+
+    <!-- LEFT: How it works -->
+    <div class="panel panel-left">
+        <div class="panel-section">
+            <div class="section-label">How Genie Works — Service Desk Flow</div>
+            <div class="step-flow" id="stepFlow">
+                <div class="step" id="step-1">
+                    <div class="step-num">1</div>
+                    <div class="step-text">Service agent selects a case from the queue</div>
+                </div>
+                <div class="step" id="step-2">
+                    <div class="step-num">2</div>
+                    <div class="step-text">Agent clicks "Generate Response"</div>
+                </div>
+                <div class="step" id="step-3">
+                    <div class="step-num">3</div>
+                    <div class="step-text">Genie searches vault memory for similar past cases</div>
+                </div>
+                <div class="step" id="step-4">
+                    <div class="step-num">4</div>
+                    <div class="step-text">Genie queries Salesforce for account context</div>
+                </div>
+                <div class="step" id="step-5">
+                    <div class="step-num">5</div>
+                    <div class="step-text">Genie synthesizes response from memory + context</div>
+                </div>
+                <div class="step" id="step-6">
+                    <div class="step-num">6</div>
+                    <div class="step-text">Response presented to agent — sent or edited</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-label">Why This Matters</div>
+            <div class="explanation">
+                <p><strong>Without Genie:</strong> An agent sees a case, follows a script, sends a generic response. The customer gets the same experience they'd get from any company.</p>
+                <p><strong>With Genie:</strong> The agent has access to institutional memory — every similar case, every lesson learned, every successful resolution pattern. The response is informed by what worked before. Consistency + context = better outcomes.</p>
+                <p>Genie doesn't replace the agent. <strong>The agent uses Genie as a force multiplier.</strong></p>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-label">Live Metrics</div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-title">Cases Resolved Today</div>
+                    <div class="info-card-value green">47</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Avg Response Time</div>
+                    <div class="info-card-value">1.8 min</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Memory Retrievals</div>
+                    <div class="info-card-value cyan">312</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">CSAT (Today)</div>
+                    <div class="info-card-value green">4.8 / 5</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Live event log -->
+    <div class="panel">
+        <div class="panel-section">
+            <div class="section-label">Live Processing Log</div>
+            <div class="event-log" id="eventLog">
+                <div class="empty-log">
+                    <div class="empty-log-icon">◉</div>
+                    <div class="empty-log-title">No events yet</div>
+                    <div class="empty-log-desc">Click "Generate Response" in the service portal to see Genie's reasoning loop in action.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const stepFlow = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6'];
+    let currentStep = 0;
+
+    function activateStep(n) {
+        // Reset all
+        stepFlow.forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.remove('active', 'done');
+        });
+        // Mark done up to n-1
+        for (let i = 0; i < n - 1; i++) {
+            document.getElementById(stepFlow[i]).classList.add('done');
+        }
+        // Activate n
+        if (n <= 6) {
+            document.getElementById(stepFlow[n - 1]).classList.add('active');
+        }
+        currentStep = n;
+    }
+
+    activateStep(1);
+
+    function connect() {
+        const source = new EventSource('/api/events/stream');
+        source.onmessage = (e) => {
+            try {
+                const evt = JSON.parse(e.data);
+                handleEvent(evt);
+            } catch (err) {}
+        };
+        source.onerror = () => {
+            setTimeout(connect, 3000);
+        };
+    }
+
+    function handleEvent(evt) {
+        const log = document.getElementById('eventLog');
+        const empty = log.querySelector('.empty-log');
+        if (empty) empty.remove();
+
+        // Advance step flow
+        if (evt.type === 'request') {
+            activateStep(2);
+        } else if (evt.type === 'vault') {
+            activateStep(3);
+        } else if (evt.type === 'sf') {
+            activateStep(4);
+        } else if (evt.type === 'intent' || evt.type === 'reasoning') {
+            activateStep(5);
+        } else if (evt.type === 'complete') {
+            activateStep(6);
+        }
+
+        const entry = document.createElement('div');
+        entry.className = `event ${evt.type === 'node_active' ? 'reasoning' : evt.type}`;
+
+        let typeLabel = evt.type.toUpperCase();
+        let body = '';
+
+        switch (evt.type) {
+            case 'request':
+                typeLabel = '📥 CASE RECEIVED';
+                body = `<span class="label">Customer:</span> <code>${evt.data.customer}</code><br><span class="label">Issue:</span> ${evt.data.subject}`;
+                break;
+            case 'reasoning':
+                typeLabel = '💭 REASONING';
+                body = evt.data.step;
+                activateStep(5);
+                break;
+            case 'node_active':
+                typeLabel = '⚙️ NODE ACTIVE';
+                body = `<code>${evt.data.node}</code> — processing`;
+                break;
+            case 'tool':
+                const toolIcon = evt.data.tool === 'search_vault' ? '📂' : '☁️';
+                body = `${toolIcon} <code>${evt.data.tool}</code><br><span class="label">Result:</span> ${evt.data.result || JSON.stringify(evt.data.params)}`;
+                if (evt.data.tool === 'search_vault') activateStep(3);
+                if (evt.data.tool === 'sf_query') activateStep(4);
+                break;
+            case 'intent':
+                typeLabel = '🎯 INTENT';
+                body = `<code>${evt.data.intent}</code> — priority: <code>${evt.data.priority}</code>`;
+                break;
+            case 'response':
+                typeLabel = '✅ RESPONSE READY';
+                body = evt.data.answer;
+                break;
+            case 'complete':
+                typeLabel = '🏁 COMPLETE';
+                body = `Case <code>${evt.data.case_id}</code> · Memory: ${evt.data.memory_used ? '✓ used' : '✗ none'} · <code>${evt.data.steps}</code> steps · <code>${evt.data.latency_ms}ms</code>`;
+                activateStep(6);
+                setTimeout(() => activateStep(1), 3000);
+                break;
+            default:
+                body = JSON.stringify(evt.data);
+        }
+
+        const time = evt.timestamp ? new Date(evt.timestamp).toLocaleTimeString() : '';
+
+        entry.innerHTML = `
+            <div class="event-header">
+                <span class="event-type">${typeLabel}</span>
+                <span class="event-time">${time}</span>
+            </div>
+            <div class="event-body">${body}</div>
+        `;
+
+        log.insertBefore(entry, log.firstChild);
+
+        while (log.children.length > 100) {
+            log.removeChild(log.lastChild);
+        }
+    }
+
+    connect();
+    setInterval(() => {
+        fetch('/api/events/recent').then(r => r.json()).then(events => {
+            events.slice(-5).forEach(e => handleEvent(e));
+        }).catch(() => {});
+    }, 2000);
+</script>
+
+</body>
+</html>

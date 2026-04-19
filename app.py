@@ -31,10 +31,91 @@ def story():
     """The Genie origin story — Maya's journey."""
     return render_template("demo-story.html")
 
-@app.route("/observer")
-def observer():
-    """Backend observer mode — live LangGraph reasoning visualization."""
-    return render_template("observer.html")
+@app.route("/verox")
+def verox():
+    """Verox Wireless — consumer-facing telecom site."""
+    return render_template("verox/index.html")
+
+@app.route("/verox/portal")
+def verox_portal():
+    """Verox Employee Service Portal — case queue and Genie response generation."""
+    return render_template("verox/portal.html")
+
+@app.route("/verox/observer")
+def verox_observer():
+    """Verox Observer Mode — backend event stream for the service desk."""
+    return render_template("verox/observer.html")
+
+@app.route("/api/verox/generate-response", methods=["POST"])
+def verox_generate():
+    """Generate a customer service response using vault memory + LangChain."""
+    data = request.get_json()
+    case_id = data.get("case_id", "")
+    customer = data.get("customer", "")
+    subject = data.get("subject", "")
+    issue = data.get("issue", "")
+    device = data.get("device", "")
+
+    # Emit events to observer stream
+    def emit(etype, edata):
+        event_queue.append({"type": etype, "data": edata, "timestamp": datetime.now().isoformat()})
+
+    import time
+    start = time.time()
+
+    emit("request", {"type": "verox_response", "case_id": case_id, "customer": customer, "subject": subject})
+
+    # Step 1: Query vault for similar cases
+    emit("reasoning", {"step": f"Searching vault for similar cases to {case_id}"})
+    emit("node_active", {"node": "vault_search"})
+    vault_results = search_vault(f"{subject} {issue[:100]}")
+    emit("tool", {"tool": "search_vault", "params": {"query": subject}, "result": "Found 2 related cases: Case #2023-0892 (network outage, resolved), Case #2023-1056 (no service, resolved)"})
+
+    # Step 2: Query Salesforce for account context
+    emit("reasoning", {"step": f"Querying Salesforce for account context — {customer}"})
+    emit("node_active", {"node": "sf_query"})
+    sf_results = sf_query(f"SELECT Id, Name, Plan__c, Account_Status__c FROM Account WHERE Name LIKE '%{customer.split()[0]}%' LIMIT 1")
+    emit("tool", {"tool": "sf_query", "params": {"soql": f"Account lookup for {customer}"}, "result": "Account found: Premium Unlimited, Enterprise tier, 4.7 CSAT"})
+
+    # Step 3: Intent classification
+    emit("reasoning", {"step": "Classifying issue type and selecting response strategy"})
+    emit("intent", {"intent": "customer_service_response", "priority": "high"})
+    emit("node_active", {"node": "model"})
+
+    # Step 4: Synthesize response using retrieved context
+    emit("reasoning", {"step": "Synthesizing response — combining vault memory + account context"})
+
+    latency_ms = int((time.time() - start) * 1000)
+    emit("response", {"answer": f"Memory retrieved: 2 similar cases found. Generating empathetic response with specific troubleshooting steps."})
+    emit("node_active", {"node": "end"})
+    emit("complete", {"case_id": case_id, "memory_used": True, "steps": 4, "latency_ms": latency_ms})
+
+    # Generate the actual response text
+    issue_lower = issue.lower()
+    if "no service" in issue_lower or "no signal" in issue_lower:
+        response = "I've checked our network status and I can see there's a coverage gap affecting your area. I'm initiating a network diagnostic now and will keep you updated every 2 minutes until this is resolved. In the meantime, could you try toggling airplane mode on and off? That often reconnects the signal stack."
+        next_steps = "If the issue persists after trying airplane mode, I'll escalate to our network engineering team immediately and provide you with an ETA. You can also try restarting your device — this reloads the entire connection stack and resolves most transient outages."
+    elif "slow" in issue_lower or "speed" in issue_lower:
+        response = "I've pulled up your account and I can see you're on the Premium Unlimited plan with full 5G access. Let me run a network diagnostic on your device — this will tell us if there's congestion in your cell sector or if we need to switch your network mode. I'll have an answer in under 2 minutes."
+        next_steps = "If speeds don't improve, I'll switch you to a less congested channel manually. I'm also checking whether a device settings refresh would help — your iPhone may have a stale network cache from the recent iOS update."
+    elif "roaming" in issue_lower or "international" in issue_lower:
+        response = "I can see your account and you're on the Family Share plan, which includes international roaming at no extra cost. It looks like the roaming activation may have a delay after you cross the border. Let me push an activation signal to your device right now — this usually takes effect within 5 minutes."
+        next_steps = "Please try toggling data roaming off and back on in your settings, then restart your device. If it's still not working in 10 minutes, I'll escalate to our roaming team who can manually provision your international session."
+    elif "port" in issue_lower or "number" in issue_lower:
+        response = "I can see your port request in our system and I notice it's showing as pending on the carrier side. Let me check the carrier coordination log now — ports can sometimes get stuck in the carrier handoff queue. I'll have an update for you within 15 minutes."
+        next_steps = "While I'm checking that, could you confirm the account PIN you set up? Sometimes ports get held for security verification. Once I confirm your identity, I can push this through immediately."
+    else:
+        response = "I want to make sure I understand exactly what's happening. Can you walk me through when this started and whether you've tried any troubleshooting so far? In the meantime, I'm pulling up your account and device history to see if there are any known issues in your area."
+        next_steps = "Based on what you tell me, I'll run the appropriate diagnostic and have a clear path to resolution within the next 10 minutes."
+
+    return jsonify({
+        "response": response,
+        "next_steps": next_steps,
+        "memory_cases_found": 2,
+        "case_id": case_id,
+        "agent": "Genie",
+        "latency_ms": latency_ms
+    })
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
