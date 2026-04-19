@@ -4,506 +4,743 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verox — Observer Mode</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0a;
-            --bg-2: #1a1a1a;
-            --bg-3: #242424;
-            --gold: #c9a84c;
-            --text: #f5f5f5;
-            --text-2: #a0a0a0;
-            --text-3: #666;
-            --green: #4a9c6d;
+            --navy: #0b1628;
+            --cyan: #00d4ff;
             --purple: #8b5cf6;
-            --cyan: #06b6d4;
-            --orange: #c97a4a;
-            --border: rgba(255,255,255,0.06);
-            --border-gold: rgba(201,168,76,0.3);
-            --verox-blue: #0b1628;
-            --verox-cyan: #00d4ff;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --text: #f0f4f8;
+            --text-dim: rgba(240,244,248,0.5);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg);
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--navy);
             color: var(--text);
             min-height: 100vh;
+            overflow: hidden;
         }
 
-        /* Nav */
+        /* ── Top bar ── */
         .topbar {
-            background: var(--verox-blue);
-            height: 56px;
+            height: 64px;
+            background: rgba(11,22,40,0.95);
+            border-bottom: 1px solid rgba(0,212,255,0.15);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
-            border-bottom: 1px solid rgba(0,212,255,0.2);
+            padding: 0 40px;
         }
 
-        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-        .topbar-logo-text {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 16px;
+        .topbar-logo {
+            font-size: 18px;
             font-weight: 700;
             color: #fff;
         }
 
-        .topbar-logo-text span { color: var(--verox-cyan); }
+        .topbar-logo span { color: var(--cyan); }
 
-        .topbar-sub { font-size: 13px; color: rgba(255,255,255,0.4); }
+        .topbar-sub {
+            font-size: 13px;
+            color: var(--text-dim);
+            padding-left: 12px;
+            border-left: 1px solid rgba(255,255,255,0.1);
+        }
 
-        .conn-indicator {
+        .live-badge {
             display: flex;
             align-items: center;
             gap: 6px;
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.25);
+            border-radius: 20px;
+            padding: 5px 12px;
             font-size: 11px;
+            font-weight: 600;
             color: var(--green);
-            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
         }
 
-        .conn-dot {
+        .live-dot {
             width: 6px;
             height: 6px;
-            border-radius: 50%;
             background: var(--green);
+            border-radius: 50%;
             animation: pulse 2s infinite;
         }
 
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        /* Layout */
-        .layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            height: calc(100vh - 57px);
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
-        .panel { overflow-y: auto; }
-
-        .panel-left {
-            border-right: 1px solid var(--border);
-            background: var(--bg-2);
-        }
-
-        .panel-section {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .section-label {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--text-3);
-            margin-bottom: 14px;
-        }
-
-        /* Info cards */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .info-card {
-            background: var(--bg-3);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 14px;
-        }
-
-        .info-card-title {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-3);
-            margin-bottom: 6px;
-        }
-
-        .info-card-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .info-card-value.cyan { color: var(--verox-cyan); }
-        .info-card-value.green { color: var(--green); }
-
-        /* Explanation */
-        .explanation {
-            font-size: 13px;
-            color: var(--text-2);
-            line-height: 1.7;
-        }
-
-        .explanation p { margin-bottom: 10px; }
-        .explanation strong { color: var(--verox-cyan); }
-
-        /* Log */
-        .event-log {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .event {
-            background: var(--bg-3);
-            border-radius: 6px;
-            padding: 12px 16px;
-            border-left: 3px solid transparent;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-8px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .event.request { border-left-color: var(--purple); }
-        .event.vault { border-left-color: var(--orange); }
-        .event.sf { border-left-color: var(--verox-cyan); }
-        .event.intent { border-left-color: var(--cyan); }
-        .event.reasoning { border-left-color: var(--gold); }
-        .event.complete { border-left-color: var(--green); background: rgba(74,156,109,0.08); }
-
-        .event-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .event-type {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-        }
-
-        .event.request .event-type { color: var(--purple); }
-        .event.vault .event-type { color: var(--orange); }
-        .event.sf .event-type { color: var(--verox-cyan); }
-        .event.intent .event-type { color: var(--cyan); }
-        .event.reasoning .event-type { color: var(--gold); }
-        .event.complete .event-type { color: var(--green); }
-
-        .event-time {
-            font-size: 10px;
-            color: var(--text-3);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .event-body {
-            font-size: 12px;
-            color: var(--text-2);
-            line-height: 1.5;
-        }
-
-        code {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            background: var(--bg-2);
-            padding: 1px 5px;
-            border-radius: 3px;
-            color: var(--verox-cyan);
-        }
-
-        .event-body .label { color: var(--text-3); }
-
-        .empty-log {
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--text-3);
-        }
-
-        .empty-log-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.4; }
-        .empty-log-title { font-size: 14px; font-weight: 600; color: var(--text-2); margin-bottom: 4px; }
-        .empty-log-desc { font-size: 12px; line-height: 1.5; }
-
-        /* Steps flow */
-        .step-flow {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--bg-3);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 14px;
-            opacity: 0.4;
-            transition: all 0.3s;
-        }
-
-        .step.active {
-            opacity: 1;
-            border-color: var(--verox-cyan);
-            background: rgba(0,212,255,0.05);
-        }
-
-        .step.done {
-            opacity: 0.7;
-            border-color: rgba(74,156,109,0.3);
-        }
-
-        .step-num {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--bg-2);
-            border: 1px solid var(--border);
+        /* ── Main view ── */
+        .main {
+            height: calc(100vh - 64px);
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 40px;
+        }
+
+        /* ── Brain view ── */
+        .brain-container {
+            position: relative;
+            width: 700px;
+            max-width: 100%;
+        }
+
+        /* Central agent icon */
+        .agent-center {
+            position: relative;
+            z-index: 2;
+        }
+
+        .agent-orb {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #1a3060, #0b1628);
+            border: 2px solid rgba(0,212,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 0 rgba(0,212,255,0);
+        }
+
+        .agent-orb.active {
+            border-color: var(--cyan);
+            box-shadow: 0 0 60px rgba(0,212,255,0.3), 0 0 120px rgba(0,212,255,0.1);
+        }
+
+        .agent-orb.thinking {
+            animation: thinkPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes thinkPulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 80px rgba(0,212,255,0.5), 0 0 120px rgba(139,92,246,0.2); }
+        }
+
+        .agent-icon {
+            font-size: 52px;
+        }
+
+        .agent-label {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .agent-sublabel {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        /* Surrounding nodes */
+        .nodes-ring {
+            position: absolute;
+            inset: -80px;
+            z-index: 1;
+        }
+
+        .brain-node {
+            position: absolute;
+            width: 160px;
+            padding: 16px 18px;
+            background: rgba(26,48,96,0.6);
+            border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 14px;
+            backdrop-filter: blur(10px);
+            opacity: 0.5;
+            transition: all 0.4s ease;
+        }
+
+        .brain-node.active {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .brain-node.active.top-left {
+            border-color: rgba(0,212,255,0.6);
+            box-shadow: 0 0 30px rgba(0,212,255,0.2);
+        }
+
+        .brain-node.active.top-right {
+            border-color: rgba(139,92,246,0.6);
+            box-shadow: 0 0 30px rgba(139,92,246,0.2);
+        }
+
+        .brain-node.active.bottom {
+            border-color: rgba(16,185,129,0.6);
+            box-shadow: 0 0 30px rgba(16,185,129,0.2);
+        }
+
+        /* Node positions */
+        .brain-node.top-left { top: 0; left: 0; }
+        .brain-node.top-right { top: 0; right: 0; }
+        .brain-node.bottom { bottom: 0; left: 50%; transform: translateX(-50%); }
+        .brain-node.bottom.active { transform: translateX(-50%) scale(1.05); }
+
+        /* Connector lines */
+        .connectors {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .connector-line {
+            position: absolute;
+            height: 1px;
+            background: rgba(0,212,255,0.1);
+            transform-origin: left center;
+            transition: all 0.4s ease;
+        }
+
+        .connector-line.active {
+            background: rgba(0,212,255,0.4);
+            box-shadow: 0 0 8px rgba(0,212,255,0.3);
+        }
+
+        /* Node content */
+        .node-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .node-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .node-desc {
+            font-size: 11px;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        /* State display */
+        .state-display {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .state-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: -0.02em;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease;
+        }
+
+        .state-text.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Case info banner */
+        .case-banner {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26,48,96,0.8);
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 12px;
+            padding: 14px 24px;
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 10;
+        }
+
+        .case-banner.visible { opacity: 1; }
+
+        .case-banner-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .case-banner-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .case-banner-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .case-banner-sep {
+            width: 1px;
+            height: 24px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Memory retrieval flash */
+        .memory-flash {
+            position: fixed;
+            inset: 0;
+            background: rgba(139,92,246,0.05);
+            border: 2px solid rgba(139,92,246,0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1;
+        }
+
+        .memory-flash.active {
+            opacity: 1;
+        }
+
+        /* Memory card popup */
+        .memory-popup {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(20,15,40,0.95);
+            border: 1px solid rgba(139,92,246,0.4);
+            border-radius: 12px;
+            padding: 16px 24px;
+            width: 480px;
+            max-width: calc(100vw - 80px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s ease;
+            z-index: 20;
+        }
+
+        .memory-popup.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .memory-popup-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 11px;
             font-weight: 700;
-            color: var(--text-3);
-            flex-shrink: 0;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--purple);
+            margin-bottom: 10px;
         }
 
-        .step.active .step-num { background: var(--verox-cyan); border-color: var(--verox-cyan); color: var(--verox-blue); }
-        .step.done .step-num { background: var(--green); border-color: var(--green); color: white; }
-
-        .step-text {
+        .memory-popup-content {
             font-size: 13px;
-            color: var(--text-2);
+            color: var(--text-dim);
+            line-height: 1.6;
         }
 
-        .step.active .step-text { color: var(--text); font-weight: 500; }
+        .memory-popup-content strong { color: var(--text); }
+
+        .memory-popup-source {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        /* Response ready flash */
+        .response-flash {
+            position: fixed;
+            inset: 0;
+            background: rgba(16,185,129,0.05);
+            border: 2px solid rgba(16,185,129,0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1;
+        }
+
+        .response-flash.active {
+            opacity: 1;
+        }
+
+        /* Step indicator */
+        .step-indicator {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: var(--cyan);
+            box-shadow: 0 0 12px rgba(0,212,255,0.6);
+        }
+
+        .step-dot.done {
+            background: var(--green);
+        }
+
+        /* Waiting state */
+        .waiting-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 3;
+        }
+
+        .waiting-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-dim);
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .waiting-sub {
+            font-size: 12px;
+            color: rgba(255,255,255,0.25);
+            margin-top: 8px;
+        }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            .layout { grid-template-columns: 1fr; }
+        @media (max-width: 768px) {
+            .brain-container { transform: scale(0.75); }
+            .brain-node { width: 130px; }
+            .nodes-ring { inset: -40px; }
         }
     </style>
 </head>
 <body>
 
+<div class="memory-flash" id="memoryFlash"></div>
+<div class="response-flash" id="responseFlash"></div>
+
+<!-- Top bar -->
 <div class="topbar">
     <div class="topbar-left">
-        <span class="topbar-logo-text">Verox<span style="color:var(--verox-cyan)">.</span></span>
-        <span style="color:rgba(255,255,255,0.3);">·</span>
-        <span class="topbar-sub">Observer Mode — Genie Reasoning Engine</span>
+        <div class="topbar-logo">Verox<span>.</span></div>
+        <div class="topbar-sub">Observer Mode</div>
     </div>
-    <div class="conn-indicator">
-        <div class="conn-dot"></div>
-        <span>Live — /api/events/stream</span>
+    <div class="live-badge">
+        <div class="live-dot"></div>
+        LIVE
     </div>
 </div>
 
-<div class="layout">
+<!-- Step dots -->
+<div class="step-indicator" id="stepIndicator">
+    <div class="step-dot" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+    <div class="step-dot" id="dot3"></div>
+    <div class="step-dot" id="dot4"></div>
+</div>
 
-    <!-- LEFT: How it works -->
-    <div class="panel panel-left">
-        <div class="panel-section">
-            <div class="section-label">How Genie Works — Service Desk Flow</div>
-            <div class="step-flow" id="stepFlow">
-                <div class="step" id="step-1">
-                    <div class="step-num">1</div>
-                    <div class="step-text">Service agent selects a case from the queue</div>
-                </div>
-                <div class="step" id="step-2">
-                    <div class="step-num">2</div>
-                    <div class="step-text">Agent clicks "Generate Response"</div>
-                </div>
-                <div class="step" id="step-3">
-                    <div class="step-num">3</div>
-                    <div class="step-text">Genie searches vault memory for similar past cases</div>
-                </div>
-                <div class="step" id="step-4">
-                    <div class="step-num">4</div>
-                    <div class="step-text">Genie queries Salesforce for account context</div>
-                </div>
-                <div class="step" id="step-5">
-                    <div class="step-num">5</div>
-                    <div class="step-text">Genie synthesizes response from memory + context</div>
-                </div>
-                <div class="step" id="step-6">
-                    <div class="step-num">6</div>
-                    <div class="step-text">Response presented to agent — sent or edited</div>
-                </div>
+<!-- Main brain view -->
+<div class="main">
+    <div class="brain-container" id="brain">
+
+        <!-- State text above -->
+        <div class="state-display">
+            <div class="state-text" id="stateText">Waiting for case...</div>
+        </div>
+
+        <!-- Central agent -->
+        <div class="agent-center">
+            <div class="agent-orb" id="agentOrb">
+                <div class="agent-icon">🧞</div>
+            </div>
+            <div class="agent-label" id="agentLabel">Genie</div>
+            <div class="agent-sublabel" id="agentSublabel">Agent Engine</div>
+        </div>
+
+        <!-- Nodes ring -->
+        <div class="nodes-ring">
+            <div class="brain-node top-left" id="nodeVault">
+                <div class="node-icon">📂</div>
+                <div class="node-title">Vault Memory</div>
+                <div class="node-desc">Past cases, lessons learned, resolution patterns</div>
+            </div>
+
+            <div class="brain-node top-right" id="nodeSF">
+                <div class="node-icon">☁️</div>
+                <div class="node-title">Salesforce</div>
+                <div class="node-desc">Account context, plan details, history</div>
+            </div>
+
+            <div class="brain-node bottom" id="nodeResponse">
+                <div class="node-icon">✅</div>
+                <div class="node-title">Response Ready</div>
+                <div class="node-desc">Empathetic, informed, ready to send</div>
             </div>
         </div>
 
-        <div class="panel-section">
-            <div class="section-label">Why This Matters</div>
-            <div class="explanation">
-                <p><strong>Without Genie:</strong> An agent sees a case, follows a script, sends a generic response. The customer gets the same experience they'd get from any company.</p>
-                <p><strong>With Genie:</strong> The agent has access to institutional memory — every similar case, every lesson learned, every successful resolution pattern. The response is informed by what worked before. Consistency + context = better outcomes.</p>
-                <p>Genie doesn't replace the agent. <strong>The agent uses Genie as a force multiplier.</strong></p>
-            </div>
-        </div>
-
-        <div class="panel-section">
-            <div class="section-label">Live Metrics</div>
-            <div class="info-grid">
-                <div class="info-card">
-                    <div class="info-card-title">Cases Resolved Today</div>
-                    <div class="info-card-value green">47</div>
-                </div>
-                <div class="info-card">
-                    <div class="info-card-title">Avg Response Time</div>
-                    <div class="info-card-value">1.8 min</div>
-                </div>
-                <div class="info-card">
-                    <div class="info-card-title">Memory Retrievals</div>
-                    <div class="info-card-value cyan">312</div>
-                </div>
-                <div class="info-card">
-                    <div class="info-card-title">CSAT (Today)</div>
-                    <div class="info-card-value green">4.8 / 5</div>
-                </div>
-            </div>
+        <!-- Waiting message -->
+        <div class="waiting-message" id="waitingMsg">
+            <div class="waiting-text">Listening for events...</div>
+            <div class="waiting-sub">Click "Generate Response" in the portal</div>
         </div>
     </div>
+</div>
 
-    <!-- RIGHT: Live event log -->
-    <div class="panel">
-        <div class="panel-section">
-            <div class="section-label">Live Processing Log</div>
-            <div class="event-log" id="eventLog">
-                <div class="empty-log">
-                    <div class="empty-log-icon">◉</div>
-                    <div class="empty-log-title">No events yet</div>
-                    <div class="empty-log-desc">Click "Generate Response" in the service portal to see Genie's reasoning loop in action.</div>
-                </div>
-            </div>
-        </div>
+<!-- Memory popup -->
+<div class="memory-popup" id="memoryPopup">
+    <div class="memory-popup-title">📂 Memory Retrieved</div>
+    <div class="memory-popup-content" id="memoryContent">
+        Found similar case from <strong>March 2024</strong> — same issue, resolved in 8 minutes with specific troubleshooting steps. Applying that pattern here.
+    </div>
+    <div class="memory-popup-source" id="memorySource">Case #2023-0892 · Resolved · Confidence: 94%</div>
+</div>
+
+<!-- Case banner -->
+<div class="case-banner" id="caseBanner">
+    <div class="case-banner-item">
+        <span class="case-banner-label">Case</span>
+        <span class="case-banner-value" id="bannerCase">—</span>
+    </div>
+    <div class="case-banner-sep"></div>
+    <div class="case-banner-item">
+        <span class="case-banner-label">Customer</span>
+        <span class="case-banner-value" id="bannerCustomer">—</span>
+    </div>
+    <div class="case-banner-sep"></div>
+    <div class="case-banner-item">
+        <span class="case-banner-label">Issue</span>
+        <span class="case-banner-value" id="bannerIssue">—</span>
     </div>
 </div>
 
 <script>
-    const stepFlow = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6'];
-    let currentStep = 0;
+    // State machine
+    const STATES = {
+        IDLE: 'idle',
+        RECEIVING: 'receiving',
+        SEARCHING_VAULT: 'searching_vault',
+        QUERYING_SF: 'querying_sf',
+        SYNTHESIZING: 'synthesizing',
+        READY: 'ready'
+    };
 
-    function activateStep(n) {
-        // Reset all
-        stepFlow.forEach(id => {
-            const el = document.getElementById(id);
-            el.classList.remove('active', 'done');
+    let currentState = STATES.IDLE;
+
+    const stateText = document.getElementById('stateText');
+    const agentOrb = document.getElementById('agentOrb');
+    const nodeVault = document.getElementById('nodeVault');
+    const nodeSF = document.getElementById('nodeSF');
+    const nodeResponse = document.getElementById('nodeResponse');
+    const memoryFlash = document.getElementById('memoryFlash');
+    const responseFlash = document.getElementById('responseFlash');
+    const memoryPopup = document.getElementById('memoryPopup');
+    const memoryContent = document.getElementById('memoryContent');
+    const memorySource = document.getElementById('memorySource');
+    const caseBanner = document.getElementById('caseBanner');
+    const waitingMsg = document.getElementById('waitingMsg');
+    const dots = [
+        document.getElementById('dot1'),
+        document.getElementById('dot2'),
+        document.getElementById('dot3'),
+        document.getElementById('dot4')
+    ];
+
+    function setState(state, text, subtext) {
+        currentState = state;
+
+        // Update state text
+        stateText.textContent = text;
+        stateText.classList.add('visible');
+        setTimeout(() => stateText.classList.remove('visible'), 2500);
+
+        // Reset all nodes
+        [nodeVault, nodeSF, nodeResponse].forEach(n => n.classList.remove('active'));
+        agentOrb.classList.remove('active', 'thinking');
+        memoryFlash.classList.remove('active');
+        responseFlash.classList.remove('active');
+        memoryPopup.classList.remove('visible');
+        waitingMsg.style.display = 'none';
+
+        // Update dots
+        const stateOrder = [STATES.RECEIVING, STATES.SEARCHING_VAULT, STATES.QUERYING_SF, STATES.SYNTHESIZING];
+        const stateIdx = stateOrder.indexOf(state);
+
+        dots.forEach((d, i) => {
+            d.classList.remove('active', 'done');
+            if (i < stateIdx) d.classList.add('done');
+            if (i === stateIdx) d.classList.add('active');
         });
-        // Mark done up to n-1
-        for (let i = 0; i < n - 1; i++) {
-            document.getElementById(stepFlow[i]).classList.add('done');
+
+        switch (state) {
+            case STATES.RECEIVING:
+                agentOrb.classList.add('active');
+                break;
+
+            case STATES.SEARCHING_VAULT:
+                agentOrb.classList.add('active', 'thinking');
+                nodeVault.classList.add('active');
+                waitingMsg.style.display = 'none';
+                break;
+
+            case STATES.QUERYING_SF:
+                agentOrb.classList.add('active', 'thinking');
+                nodeVault.classList.add('active');
+                nodeSF.classList.add('active');
+                break;
+
+            case STATES.SYNTHESIZING:
+                agentOrb.classList.add('active', 'thinking');
+                nodeVault.classList.add('active');
+                nodeSF.classList.add('active');
+                memoryFlash.classList.add('active');
+                setTimeout(() => {
+                    memoryPopup.classList.add('visible');
+                }, 600);
+                break;
+
+            case STATES.READY:
+                agentOrb.classList.remove('thinking');
+                nodeVault.classList.add('active');
+                nodeSF.classList.add('active');
+                nodeResponse.classList.add('active');
+                responseFlash.classList.add('active');
+                stateText.textContent = 'Response Ready';
+                stateText.classList.add('visible');
+                setTimeout(() => {
+                    nodeResponse.classList.remove('active');
+                    nodeVault.classList.remove('active');
+                    nodeSF.classList.remove('active');
+                    agentOrb.classList.remove('active');
+                    stateText.textContent = 'Waiting for case...';
+                    stateText.classList.add('visible');
+                    caseBanner.classList.remove('visible');
+                    dots.forEach(d => d.classList.remove('active', 'done'));
+                }, 4000);
+                break;
         }
-        // Activate n
-        if (n <= 6) {
-            document.getElementById(stepFlow[n - 1]).classList.add('active');
-        }
-        currentStep = n;
     }
 
-    activateStep(1);
+    // SSE connection
+    let lastEventTime = 0;
 
     function connect() {
         const source = new EventSource('/api/events/stream');
+
         source.onmessage = (e) => {
             try {
                 const evt = JSON.parse(e.data);
                 handleEvent(evt);
             } catch (err) {}
         };
+
         source.onerror = () => {
+            source.close();
             setTimeout(connect, 3000);
         };
     }
 
     function handleEvent(evt) {
-        const log = document.getElementById('eventLog');
-        const empty = log.querySelector('.empty-log');
-        if (empty) empty.remove();
-
-        // Advance step flow
-        if (evt.type === 'request') {
-            activateStep(2);
-        } else if (evt.type === 'vault') {
-            activateStep(3);
-        } else if (evt.type === 'sf') {
-            activateStep(4);
-        } else if (evt.type === 'intent' || evt.type === 'reasoning') {
-            activateStep(5);
-        } else if (evt.type === 'complete') {
-            activateStep(6);
-        }
-
-        const entry = document.createElement('div');
-        entry.className = `event ${evt.type === 'node_active' ? 'reasoning' : evt.type}`;
-
-        let typeLabel = evt.type.toUpperCase();
-        let body = '';
+        // Debounce — don't re-trigger on old events
+        const eventTime = new Date(evt.timestamp).getTime();
+        if (eventTime <= lastEventTime && evt.type !== 'request') return;
+        if (eventTime > lastEventTime) lastEventTime = eventTime;
 
         switch (evt.type) {
             case 'request':
-                typeLabel = '📥 CASE RECEIVED';
-                body = `<span class="label">Customer:</span> <code>${evt.data.customer}</code><br><span class="label">Issue:</span> ${evt.data.subject}`;
+                // Show case banner
+                if (evt.data.type === 'verox_response') {
+                    document.getElementById('bannerCase').textContent = evt.data.case_id || '—';
+                    document.getElementById('bannerCustomer').textContent = evt.data.customer || '—';
+                    const issue = (evt.data.subject || '—').substring(0, 40);
+                    document.getElementById('bannerIssue').textContent = issue + (issue.length > 40 ? '...' : '');
+                    caseBanner.classList.add('visible');
+                }
+                setState(STATES.RECEIVING, 'Case received', '');
                 break;
+
             case 'reasoning':
-                typeLabel = '💭 REASONING';
-                body = evt.data.step;
-                activateStep(5);
+                if (evt.data.step && evt.data.step.includes('vault')) {
+                    setState(STATES.SEARCHING_VAULT, 'Searching memory...', '');
+                } else if (evt.data.step && evt.data.step.includes('Salesforce')) {
+                    setState(STATES.QUERYING_SF, 'Checking account...', '');
+                } else if (evt.data.step && evt.data.step.includes('Synthes')) {
+                    setState(STATES.SYNTHESIZING, 'Building response...', '');
+                }
                 break;
-            case 'node_active':
-                typeLabel = '⚙️ NODE ACTIVE';
-                body = `<code>${evt.data.node}</code> — processing`;
-                break;
+
             case 'tool':
-                const toolIcon = evt.data.tool === 'search_vault' ? '📂' : '☁️';
-                body = `${toolIcon} <code>${evt.data.tool}</code><br><span class="label">Result:</span> ${evt.data.result || JSON.stringify(evt.data.params)}`;
-                if (evt.data.tool === 'search_vault') activateStep(3);
-                if (evt.data.tool === 'sf_query') activateStep(4);
+                if (evt.data.tool === 'search_vault' && evt.data.result) {
+                    // Update memory popup with actual result
+                    memoryContent.innerHTML = `<strong>Found similar case:</strong> ${evt.data.result.substring(0, 120)}...`;
+                    memorySource.textContent = `Case matched · retrieved from vault`;
+                }
                 break;
-            case 'intent':
-                typeLabel = '🎯 INTENT';
-                body = `<code>${evt.data.intent}</code> — priority: <code>${evt.data.priority}</code>`;
-                break;
-            case 'response':
-                typeLabel = '✅ RESPONSE READY';
-                body = evt.data.answer;
-                break;
+
             case 'complete':
-                typeLabel = '🏁 COMPLETE';
-                body = `Case <code>${evt.data.case_id}</code> · Memory: ${evt.data.memory_used ? '✓ used' : '✗ none'} · <code>${evt.data.steps}</code> steps · <code>${evt.data.latency_ms}ms</code>`;
-                activateStep(6);
-                setTimeout(() => activateStep(1), 3000);
+                setState(STATES.READY, 'Response Ready', '');
                 break;
-            default:
-                body = JSON.stringify(evt.data);
-        }
-
-        const time = evt.timestamp ? new Date(evt.timestamp).toLocaleTimeString() : '';
-
-        entry.innerHTML = `
-            <div class="event-header">
-                <span class="event-type">${typeLabel}</span>
-                <span class="event-time">${time}</span>
-            </div>
-            <div class="event-body">${body}</div>
-        `;
-
-        log.insertBefore(entry, log.firstChild);
-
-        while (log.children.length > 100) {
-            log.removeChild(log.lastChild);
         }
     }
 
+    // Poll as fallback
+    async function poll() {
+        try {
+            const resp = await fetch('/api/events/recent');
+            const events = await resp.json();
+            events.slice(-10).forEach(e => handleEvent(e));
+        } catch (e) {}
+    }
+
     connect();
-    setInterval(() => {
-        fetch('/api/events/recent').then(r => r.json()).then(events => {
-            events.slice(-5).forEach(e => handleEvent(e));
-        }).catch(() => {});
-    }, 2000);
+    setInterval(poll, 2000);
+
+    // Initial state
+    stateText.textContent = 'Waiting for case...';
+    stateText.classList.add('visible');
 </script>
 
 </body>

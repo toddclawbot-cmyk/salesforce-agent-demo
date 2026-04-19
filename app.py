@@ -1079,4 +1079,4 @@ if __name__ == "__main__":
     print(f"📁 Vault path: {os.path.join(os.path.dirname(__file__), 'vault')}")
     print(f"🔧 Tools loaded: {', '.join(TOOL_NAMES)}")
     print("🌐 Open http://localhost:5051 in your browser")
-    app.run(host="0.0.0.0", port=5051, debug=True)
+    app.run(host="0.0.0.0", port=5051, debug=False, threaded=True)
